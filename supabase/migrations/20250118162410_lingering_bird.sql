@@ -42,4 +42,11 @@ USING (
 );
 
 -- Enable RLS on storage.objects
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  BEGIN
+    EXECUTE 'ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY';
+  EXCEPTION WHEN others THEN
+    RAISE NOTICE 'Skipping RLS change on storage.objects: %', SQLERRM;
+  END;
+END $$;

@@ -8,6 +8,9 @@
     - Add realistic prices and locations
 */
 
+-- Ensure pgcrypto is available for password hashing helpers used below
+create extension if not exists pgcrypto;
+
 -- First, create a test user in auth.users
 INSERT INTO auth.users (
   id,
@@ -26,7 +29,7 @@ VALUES (
   'c9c90647-7e11-4ef6-8f79-d1a4f8c9e6a5',
   '00000000-0000-0000-0000-000000000000',
   'teste@agromachines.com.br',
-  crypt('teste123', gen_salt('bf')),
+  '$2b$10$t7hl5HeWYht1OA8nS0oW.OO8COYs2ZV3tYJB23EYsKdjlSCHuMhSa',
   now(),
   now(),
   now(),

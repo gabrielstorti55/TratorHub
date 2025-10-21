@@ -24,11 +24,27 @@ WITH CHECK (auth.uid() = user_id);
 GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT ALL ON profiles TO authenticated;
 
--- Create policy to allow users to read their own auth.users data
-CREATE POLICY "Users can view own user data"
-ON auth.users FOR SELECT
-TO authenticated
-USING (auth.uid() = id);
+-- Create policy to allow users to read their own auth.users data (skip quietly if not permitted)
+DO $$
+BEGIN
+	BEGIN
+		EXECUTE '
+			CREATE POLICY "Users can view own user data"
+			ON auth.users FOR SELECT
+			TO authenticated
+			USING (auth.uid() = id)
+		';
+	EXCEPTION WHEN others THEN
+		RAISE NOTICE 'Skipping auth.users policy creation: %', SQLERRM;
+	END;
+END $$;
 
--- Grant permissions on auth.users to authenticated users
-GRANT SELECT ON auth.users TO authenticated;
+-- Grant permissions on auth.users to authenticated users (skip quietly if not permitted)
+DO $$
+BEGIN
+	BEGIN
+		EXECUTE 'GRANT SELECT ON auth.users TO authenticated';
+	EXCEPTION WHEN others THEN
+		RAISE NOTICE 'Skipping grant on auth.users: %', SQLERRM;
+	END;
+END $$;

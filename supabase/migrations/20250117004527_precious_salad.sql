@@ -20,7 +20,7 @@ INSERT INTO auth.users (
   'ad6e43e4-9c5f-4b9e-8c5a-4f9d7b6f5b2d',
   '00000000-0000-0000-0000-000000000000',
   'admin@agromachines.com.br',
-  crypt('Admin@123', gen_salt('bf')),
+  '$2b$10$AnEntUCeXys6UPXx3vbXJenV9EHNiC.YYgcpsTksCyh8H9DySFK7m',
   now(),
   now(),
   now(),

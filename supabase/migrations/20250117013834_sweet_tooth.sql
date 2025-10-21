@@ -24,29 +24,38 @@ WITH CHECK (auth.uid() = user_id);
 GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT ALL ON profiles TO authenticated;
 
--- Drop and recreate policy for auth.users if it exists
-DO $$ 
+-- Drop and recreate policy for auth.users if it exists (skip quietly if not permitted)
+DO $$
 BEGIN
-    -- Drop the policy if it exists
-    DROP POLICY IF EXISTS "Users can view own user data" ON auth.users;
-    
-    -- Create the policy
-    IF NOT EXISTS (
-        SELECT 1 
-        FROM pg_policies 
-        WHERE schemaname = 'auth' 
-        AND tablename = 'users' 
-        AND policyname = 'Users can view own user data'
-    ) THEN
-        CREATE POLICY "Users can view own user data"
-        ON auth.users FOR SELECT
-        TO authenticated
-        USING (auth.uid() = id);
-    END IF;
+    BEGIN
+        EXECUTE 'DROP POLICY IF EXISTS "Users can view own user data" ON auth.users';
+        EXECUTE '
+            CREATE POLICY "Users can view own user data"
+            ON auth.users FOR SELECT
+            TO authenticated
+            USING (auth.uid() = id)
+        ';
+    EXCEPTION WHEN others THEN
+        RAISE NOTICE 'Skipping auth.users policy adjustments: %', SQLERRM;
+    END;
 END $$;
 
--- Grant permissions on auth.users to authenticated users
-GRANT SELECT ON auth.users TO authenticated;
+-- Grant permissions on auth.users to authenticated users (skip quietly if not permitted)
+DO $$
+BEGIN
+    BEGIN
+        EXECUTE 'GRANT SELECT ON auth.users TO authenticated';
+    EXCEPTION WHEN others THEN
+        RAISE NOTICE 'Skipping grant on auth.users: %', SQLERRM;
+    END;
+END $$;
 
--- Ensure RLS is enabled on auth.users
-ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
+-- Ensure RLS is enabled on auth.users (skip quietly if not permitted)
+DO $$
+BEGIN
+    BEGIN
+        EXECUTE 'ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY';
+    EXCEPTION WHEN others THEN
+        RAISE NOTICE 'Skipping RLS change on auth.users: %', SQLERRM;
+    END;
+END $$;

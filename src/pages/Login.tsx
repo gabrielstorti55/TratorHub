@@ -125,16 +125,26 @@ export default function Login() {
 
         if (signInError) {
           if (signInError.message.includes('Invalid login credentials')) {
-            setError('Email ou senha incorretos');
+            setError('Email ou senha incorretos. Se você acabou de criar sua conta, verifique seu email para confirmar o cadastro.');
+          } else if (signInError.message.includes('Email not confirmed')) {
+            setError('Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.');
           } else {
-            setError('Erro ao fazer login. Por favor, tente novamente.');
+            console.error('Erro no login:', signInError);
+            setError(`Erro ao fazer login: ${signInError.message}`);
           }
           return;
         }
 
         navigate((location.state as any)?.from || '/');
       } else {
-        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+        console.log('Tentando criar conta com:', {
+          email: formData.email,
+          full_name: formData.full_name,
+          cpf_cnpj: formData.cpf_cnpj.replace(/\D/g, ''),
+          phone: formData.phone.replace(/\D/g, ''),
+        });
+
+        const { data: { user, session }, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
@@ -142,22 +152,38 @@ export default function Login() {
               full_name: formData.full_name,
               cpf_cnpj: formData.cpf_cnpj.replace(/\D/g, ''),
               phone: formData.phone.replace(/\D/g, ''),
-            }
+            },
+            emailRedirectTo: `${window.location.origin}/entrar`
           }
         });
+
+        console.log('Resposta do signup:', { user, session, error: signUpError });
 
         if (signUpError) {
           if (signUpError.message.includes('User already registered')) {
             setError('Este email já está cadastrado');
             setIsRegistering(false);
           } else {
-            setError('Erro ao criar conta. Por favor, tente novamente.');
+            console.error('Erro no signup:', signUpError);
+            setError(`Erro ao criar conta: ${signUpError.message}`);
           }
           return;
         }
 
         if (user) {
-          setSuccess('Conta criada com sucesso! Você já pode fazer login.');
+          console.log('Usuário criado com sucesso:', user.id);
+          
+          // Se já tem sessão, significa que não precisa confirmar email
+          if (session) {
+            setSuccess('Conta criada com sucesso! Redirecionando...');
+            setTimeout(() => {
+              navigate('/');
+            }, 1500);
+          } else {
+            // Precisa confirmar email
+            setSuccess('Conta criada! Verifique seu email para confirmar o cadastro antes de fazer login.');
+          }
+          
           setIsRegistering(false);
           setFormData({
             email: '',
