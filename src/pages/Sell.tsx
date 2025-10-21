@@ -172,19 +172,29 @@ export default function Sell() {
     setError(null);
 
     try {
+      console.log('🚀 Iniciando criação de anúncio...');
+      
       if (images.length === 0) {
         throw new Error('Por favor, adicione pelo menos uma foto do produto.');
       }
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        console.error('❌ Usuário não autenticado');
         navigate('/entrar');
         return;
       }
 
+      console.log('✅ Usuário autenticado:', session.user.id);
+
+      console.log('✅ Usuário autenticado:', session.user.id);
+
+      console.log('📸 Fazendo upload de', images.length, 'imagens...');
       const imageUrls: string[] = [];
       for (let i = 0; i < images.length; i++) {
         const image = images[i];
+        console.log(`📤 Uploading imagem ${i + 1}/${images.length}...`);
+        
         setImages(prev => {
           const newImages = [...prev];
           newImages[i].uploading = true;
@@ -195,16 +205,22 @@ export default function Sell() {
         const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `products/${fileName}`;
 
+        console.log(`📁 Caminho do arquivo: ${filePath}`);
+
         const { error: uploadError } = await supabase.storage
           .from('product-images')
           .upload(filePath, image.file);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error('❌ Erro no upload:', uploadError);
+          throw uploadError;
+        }
 
         const { data: { publicUrl } } = supabase.storage
           .from('product-images')
           .getPublicUrl(filePath);
 
+        console.log(`✅ Imagem ${i + 1} uploaded:`, publicUrl);
         imageUrls.push(publicUrl);
 
         setImages(prev => {
@@ -213,6 +229,14 @@ export default function Sell() {
           return newImages;
         });
       }
+
+      console.log('💾 Salvando produto no banco de dados...');
+      console.log('Dados do produto:', {
+        title: formData.title.trim(),
+        price: Number(formData.price.replace(/\D/g, '')) / 100,
+        category: formData.category,
+        user_id: session.user.id
+      });
 
       const { data: insertedProduct, error: insertError } = await supabase
         .from('products')
@@ -231,19 +255,28 @@ export default function Sell() {
           user_id: session.user.id,
           hours: formData.hours ? parseInt(formData.hours) : null,
           power: formData.power ? parseInt(formData.power) : null,
-          implement_type: formData.implementType,
+          implement_type: formData.implementType || null,
           work_width: formData.workWidth ? parseFloat(formData.workWidth) : null,
-          part_type: formData.partType,
-          part_condition: formData.partCondition,
-          part_number: formData.partNumber
+          part_type: formData.partType || null,
+          part_condition: formData.partCondition || null,
+          part_number: formData.partNumber || null
         })
         .select()
         .single();
 
-      if (insertError) throw insertError;
-      if (!insertedProduct) throw new Error('Erro ao criar produto');
+      if (insertError) {
+        console.error('❌ Erro ao inserir produto:', insertError);
+        throw insertError;
+      }
+      if (!insertedProduct) {
+        console.error('❌ Produto não foi criado');
+        throw new Error('Erro ao criar produto');
+      }
+
+      console.log('✅ Produto criado com sucesso:', insertedProduct.id);
 
       if (imageUrls.length > 1) {
+        console.log(`📸 Salvando ${imageUrls.length - 1} imagens adicionais...`);
         const { error: imagesError } = await supabase
           .from('product_images')
           .insert(
@@ -254,13 +287,39 @@ export default function Sell() {
             }))
           );
 
-        if (imagesError) throw imagesError;
+        if (imagesError) {
+          console.error('❌ Erro ao salvar imagens adicionais:', imagesError);
+          throw imagesError;
+        }
+        console.log('✅ Imagens adicionais salvas com sucesso');
       }
 
+      console.log('🎉 Anúncio criado com sucesso! Redirecionando...');
       navigate('/meus-anuncios');
-    } catch (err) {
-      console.error('Erro ao criar anúncio:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao criar anúncio');
+    } catch (err: any) {
+      console.error('❌ Erro geral ao criar anúncio:', err);
+      console.error('Detalhes do erro:', {
+        message: err?.message,
+        details: err?.details,
+        hint: err?.hint,
+        code: err?.code
+      });
+      
+      let errorMessage = 'Erro ao criar anúncio';
+      
+      if (err?.message) {
+        errorMessage = err.message;
+      }
+      
+      if (err?.details) {
+        errorMessage += ` - ${err.details}`;
+      }
+      
+      if (err?.hint) {
+        errorMessage += ` (Dica: ${err.hint})`;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
