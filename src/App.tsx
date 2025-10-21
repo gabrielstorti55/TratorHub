@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { supabase, isAuthenticated } from './lib/supabase';
 import Navbar from './components/Navbar';
@@ -14,6 +14,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import MyListings from './pages/MyListings';
 import ProductDetails from './pages/ProductDetails';
+import EditListing from './pages/EditListing';
 
 export default function App() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function App() {
         
         // Se não estiver autenticado e tentar acessar rotas protegidas
         if (!isUserAuthenticated && location.pathname !== '/entrar') {
-          const protectedRoutes = ['/perfil', '/meus-anuncios', '/vender'];
+          const protectedRoutes = ['/perfil', '/meus-anuncios', '/vender', '/editar-anuncio'];
           if (protectedRoutes.some(route => location.pathname.startsWith(route))) {
             navigate('/entrar', { 
               state: { from: location.pathname },
@@ -52,7 +53,7 @@ export default function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!session && location.pathname !== '/entrar') {
-        const protectedRoutes = ['/perfil', '/meus-anuncios', '/vender'];
+        const protectedRoutes = ['/perfil', '/meus-anuncios', '/vender', '/editar-anuncio'];
         if (protectedRoutes.some(route => location.pathname.startsWith(route))) {
           navigate('/entrar', { 
             state: { from: location.pathname },
@@ -91,6 +92,7 @@ export default function App() {
           <Route path="/perfil" element={<Profile />} />
           <Route path="/meus-anuncios" element={<MyListings />} />
           <Route path="/produto/:id" element={<ProductDetails />} />
+          <Route path="/editar-anuncio/:id" element={<EditListing />} />
         </Routes>
       </div>
       <Footer />

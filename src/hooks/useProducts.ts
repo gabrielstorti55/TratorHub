@@ -62,12 +62,18 @@ export function useProducts(options: UseProductsOptions = {}) {
         query = query.lte('price', options.maxPrice);
       }
       if (options.userId) {
+        console.log('🔍 Filtrando produtos por userId:', options.userId);
         query = query.eq('user_id', options.userId);
       }
 
       const { data, error: queryError } = await query;
 
       if (queryError) throw queryError;
+
+      console.log('📦 Produtos encontrados:', data?.length || 0);
+      if (options.userId) {
+        console.log('✅ Produtos do usuário:', data?.map(p => ({ title: p.title, user_id: p.user_id })));
+      }
 
       setProducts(data || []);
       setLoading(false);

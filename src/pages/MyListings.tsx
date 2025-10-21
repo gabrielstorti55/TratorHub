@@ -1,36 +1,44 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { useProducts } from '../hooks/useProducts';
 import { supabase } from '../lib/supabase';
 
 export default function MyListings() {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [userId, setUserId] = React.useState<string | null>(null);
-
-  // Get products only for the current user
-  const { products: userProducts, loading: loadingProducts } = useProducts({
-    userId: userId || undefined,
-  });
+  const [userProducts, setUserProducts] = React.useState<any[]>([]);
+  const [loadingProducts, setLoadingProducts] = React.useState(true);
 
   React.useEffect(() => {
-    async function checkUser() {
+    async function checkUserAndLoadProducts() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           navigate('/entrar');
           return;
         }
-        setUserId(user.id);
+
+        // Buscar produtos do usuário
+        setLoadingProducts(true);
+        const { data: products, error: productsError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (productsError) throw productsError;
+
+        setUserProducts(products || []);
+        setLoadingProducts(false);
       } catch (err) {
         console.error('Erro ao verificar usuário:', err);
         setError('Erro ao verificar usuário. Por favor, tente novamente.');
+        setLoadingProducts(false);
       }
     }
 
-    checkUser();
+    checkUserAndLoadProducts();
   }, [navigate]);
 
   const handleDelete = async (productId: string) => {
