@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   AlertCircle, 
   Loader2, 
@@ -29,11 +29,22 @@ type TabType = 'personal' | 'listings' | 'favorites' | 'settings';
 
 export default function Profile() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('personal');
   const [userProducts, setUserProducts] = useState<Product[]>([]);
+
+  // Verificar se há mensagem vinda da navegação
+  useEffect(() => {
+    if (location.state?.message) {
+      setError(location.state.message);
+      // Limpar o state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -65,6 +76,7 @@ export default function Profile() {
             cpf_cnpj: (profile as any).cpf_cnpj || '',
             phone: (profile as any).phone || '',
             address: (profile as any).address || '',
+            neighborhood: (profile as any).neighborhood || '',
             city: (profile as any).city || '',
             state: (profile as any).state || '',
             postal_code: (profile as any).postal_code || '',
@@ -98,12 +110,51 @@ export default function Profile() {
     cpf_cnpj: '',
     phone: '',
     address: '',
+    neighborhood: '',
     city: '',
     state: '',
     postal_code: '',
     company_name: '',
     bio: '',
   });
+
+  const [loadingCep, setLoadingCep] = useState(false);
+
+  // Buscar CEP na API ViaCEP
+  const fetchAddressByCep = async (cep: string) => {
+    const cleanCep = cep.replace(/\D/g, '');
+    
+    if (cleanCep.length !== 8) return;
+
+    setLoadingCep(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        setError('CEP não encontrado. Verifique e tente novamente.');
+        return;
+      }
+
+      // Preencher automaticamente os campos
+      setFormData(prev => ({
+        ...prev,
+        address: data.logradouro || prev.address,
+        neighborhood: data.bairro || prev.neighborhood,
+        city: data.localidade || prev.city,
+        state: data.uf || prev.state,
+      }));
+
+      console.log('✅ Endereço encontrado:', data);
+    } catch (err) {
+      console.error('Erro ao buscar CEP:', err);
+      setError('Erro ao buscar CEP. Tente novamente.');
+    } finally {
+      setLoadingCep(false);
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -141,6 +192,11 @@ export default function Profile() {
       const numbers = value.replace(/\D/g, '');
       const formatted = numbers.replace(/(\d{5})(\d{3})/g, '$1-$2');
       setFormData(prev => ({ ...prev, [name]: formatted }));
+      
+      // Buscar endereço automaticamente quando CEP estiver completo
+      if (numbers.length === 8) {
+        fetchAddressByCep(numbers);
+      }
       return;
     }
 
@@ -442,7 +498,11 @@ export default function Profile() {
                           placeholder="00000-000"
                           maxLength={9}
                         />
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        {loadingCep ? (
+                          <Loader2 className="absolute left-3 top-2.5 text-green-600 animate-spin" size={20} />
+                        ) : (
+                          <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        )}
                       </div>
                     </div>
 
@@ -459,6 +519,24 @@ export default function Profile() {
                           onChange={handleInputChange}
                           className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                           placeholder="Rua, número, complemento"
+                        />
+                        <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      </div>
+                    </div>
+
+                    {/* Bairro */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Bairro
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="neighborhood"
+                          value={formData.neighborhood}
+                          onChange={handleInputChange}
+                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                          placeholder="Seu bairro"
                         />
                         <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
                       </div>

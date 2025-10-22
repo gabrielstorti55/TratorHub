@@ -54,6 +54,7 @@ export default function Sell() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [images, setImages] = useState<ImageFile[]>([]);
+  const [showProfileIncompleteModal, setShowProfileIncompleteModal] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -79,10 +80,26 @@ export default function Sell() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate('/entrar', { state: { from: '/vender' } });
+        return;
+      }
+
+      // Verificar se o usuário tem CEP cadastrado
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('postal_code')
+        // @ts-expect-error - Supabase type issue
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (profileError || !profile || !(profile as any).postal_code || (profile as any).postal_code.trim() === '') {
+        setShowProfileIncompleteModal(true);
+        return;
       }
     };
+    
     checkAuth();
   }, [navigate]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -854,6 +871,52 @@ export default function Sell() {
           </form>
         </div>
       </div>
+
+      {/* Modal de Perfil Incompleto */}
+      {showProfileIncompleteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-fadeIn">
+            <div className="flex flex-col items-center text-center">
+              {/* Ícone */}
+              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                <Info className="text-amber-600" size={32} />
+              </div>
+
+              {/* Título */}
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                Complete seu Perfil
+              </h3>
+
+              {/* Mensagem */}
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Para criar anúncios, você precisa preencher o <span className="font-semibold text-gray-900">CEP</span> no seu perfil. 
+                Isso ajuda os compradores a encontrarem produtos perto deles!
+              </p>
+
+              {/* Botões */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <button
+                  onClick={() => navigate('/')}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+                >
+                  Voltar
+                </button>
+                <button
+                  onClick={() => navigate('/perfil', { 
+                    state: { 
+                      message: 'Por favor, preencha seu CEP para poder criar anúncios.',
+                      highlightCep: true 
+                    } 
+                  })}
+                  className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-lg shadow-green-600/30"
+                >
+                  Completar Perfil
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

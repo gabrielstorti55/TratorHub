@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
@@ -66,6 +66,9 @@ export default function Rent() {
       if (!matchesSearch) return false;
     }
 
+    // Filtro por período (IMPORTANTE para aluguel)
+    if (filters.period && product.period !== filters.period) return false;
+
     // Filtro por marca
     if (filters.brand && product.brand !== filters.brand) return false;
 
@@ -131,24 +134,6 @@ export default function Rent() {
 
   // Contar filtros ativos
   const activeFiltersCount = Object.values(filters).filter(v => v && v !== 0 && v !== new Date().getFullYear()).length + (searchTerm ? 1 : 0);
-
-  // Handle search submit
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    
-    if (searchTerm) params.append('busca', searchTerm);
-    if (filters.category) params.append('categoria', filters.category);
-    if (filters.period) params.append('periodo', filters.period);
-    
-    // Atualizar URL
-    navigate(`/alugar?${params.toString()}`, { replace: true });
-
-    // Rolar até os resultados
-    if (resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">
