@@ -19,7 +19,8 @@ import {
   GripHorizontal,
   DollarSign,
   Info,
-  CheckCircle2
+  CheckCircle2,
+  ChevronRight
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -55,6 +56,13 @@ export default function Sell() {
   const [error, setError] = useState<string | null>(null);
   const [images, setImages] = useState<ImageFile[]>([]);
   const [showProfileIncompleteModal, setShowProfileIncompleteModal] = useState(false);
+  const [useProfileLocation, setUseProfileLocation] = useState(true);
+  const [profileLocation, setProfileLocation] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [states, setStates] = useState<Array<{ sigla: string; nome: string }>>([]);
+  const [cities, setCities] = useState<Array<{ nome: string }>>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -83,22 +91,83 @@ export default function Sell() {
         return;
       }
 
-      // Verificar se o usuário tem CEP cadastrado
+      // Verificar se o usuário tem cidade e estado cadastrados
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('postal_code')
+        .select('city, state')
         // @ts-expect-error - Supabase type issue
         .eq('user_id', session.user.id)
         .single();
 
-      if (profileError || !profile || !(profile as any).postal_code || (profile as any).postal_code.trim() === '') {
+      if (profileError || !profile || !(profile as any).city || !(profile as any).state) {
         setShowProfileIncompleteModal(true);
         return;
       }
+
+      // Salvar localização do perfil
+      const locationFormatted = `${(profile as any).city} - ${(profile as any).state}`;
+      setProfileLocation(locationFormatted);
+      setFormData(prev => ({ ...prev, location: locationFormatted }));
     };
     
     checkAuth();
   }, [navigate]);
+
+  // Carregar estados da API do IBGE
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+        const data = await response.json();
+        setStates(data);
+      } catch (err) {
+        console.error('Erro ao carregar estados:', err);
+      }
+    };
+
+    fetchStates();
+  }, []);
+
+  // Carregar cidades quando o estado for selecionado
+  useEffect(() => {
+    if (selectedState && !useProfileLocation) {
+      const fetchCities = async () => {
+        setLoadingCities(true);
+        try {
+          const response = await fetch(
+            `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedState}/municipios?orderBy=nome`
+          );
+          const data = await response.json();
+          setCities(data);
+        } catch (err) {
+          console.error('Erro ao carregar cidades:', err);
+        } finally {
+          setLoadingCities(false);
+        }
+      };
+
+      fetchCities();
+    }
+  }, [selectedState, useProfileLocation]);
+
+  // Atualizar localização quando mudar a opção
+  useEffect(() => {
+    if (useProfileLocation && profileLocation) {
+      setFormData(prev => ({ ...prev, location: profileLocation }));
+      setSelectedState('');
+      setSelectedCity('');
+    } else if (!useProfileLocation) {
+      setFormData(prev => ({ ...prev, location: '' }));
+    }
+  }, [useProfileLocation, profileLocation]);
+
+  // Atualizar localização quando cidade for selecionada
+  useEffect(() => {
+    if (selectedCity && selectedState && !useProfileLocation) {
+      const locationFormatted = `${selectedCity} - ${selectedState}`;
+      setFormData(prev => ({ ...prev, location: locationFormatted }));
+    }
+  }, [selectedCity, selectedState, useProfileLocation]);
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -192,6 +261,13 @@ export default function Sell() {
       
       if (images.length === 0) {
         throw new Error('Por favor, adicione pelo menos uma foto do produto.');
+      }
+
+      // Validar se localização foi selecionada
+      if (!formData.location || formData.location.trim() === '') {
+        setError('Por favor, selecione a localização do produto.');
+        setLoading(false);
+        return;
       }
 
       const { data: { session } } = await supabase.auth.getSession();
@@ -630,21 +706,109 @@ export default function Sell() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Localização*
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                      placeholder="Ex: São Paulo, SP"
-                      required
-                    />
-                    <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                  
+                  {/* Opções de localização */}
+                  <div className="flex gap-4 mb-3">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={useProfileLocation}
+                        onChange={() => setUseProfileLocation(true)}
+                        className="w-4 h-4 text-green-600 focus:ring-green-500"
+                      />
+                      <span className="text-sm">Usar localização do meu perfil</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={!useProfileLocation}
+                        onChange={() => setUseProfileLocation(false)}
+                        className="w-4 h-4 text-green-600 focus:ring-green-500"
+                      />
+                      <span className="text-sm">Outra localização</span>
+                    </label>
                   </div>
+
+                  {useProfileLocation ? (
+                    // Mostrar localização do perfil
+                    <div>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={profileLocation}
+                          readOnly
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed outline-none"
+                          placeholder="Carregando localização..."
+                        />
+                        <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        📍 Usando localização do perfil: <span className="font-medium">{profileLocation}</span>
+                      </p>
+                    </div>
+                  ) : (
+                    // Selects de Estado e Cidade
+                    <div className="space-y-3">
+                      {/* Select de Estado */}
+                      <div className="relative">
+                        <select
+                          value={selectedState}
+                          onChange={(e) => {
+                            setSelectedState(e.target.value);
+                            setSelectedCity('');
+                            setCities([]);
+                          }}
+                          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none appearance-none bg-white"
+                          required
+                        >
+                          <option value="">Selecione o estado</option>
+                          {states.map((state) => (
+                            <option key={state.sigla} value={state.sigla}>
+                              {state.nome} ({state.sigla})
+                            </option>
+                          ))}
+                        </select>
+                        <MapPin className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
+                        <ChevronRight className="absolute right-3 top-2.5 text-gray-400 pointer-events-none rotate-90" size={20} />
+                      </div>
+
+                      {/* Select de Cidade */}
+                      {selectedState && (
+                        <div className="relative">
+                          <select
+                            value={selectedCity}
+                            onChange={(e) => setSelectedCity(e.target.value)}
+                            disabled={loadingCities || cities.length === 0}
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none appearance-none bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            required
+                          >
+                            <option value="">
+                              {loadingCities ? 'Carregando cidades...' : 'Selecione a cidade'}
+                            </option>
+                            {cities.map((city) => (
+                              <option key={city.nome} value={city.nome}>
+                                {city.nome}
+                              </option>
+                            ))}
+                          </select>
+                          <Building2 className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
+                          <ChevronRight className="absolute right-3 top-2.5 text-gray-400 pointer-events-none rotate-90" size={20} />
+                        </div>
+                      )}
+
+                      {/* Campo oculto para enviar no formulário */}
+                      <input type="hidden" name="location" value={formData.location} required />
+
+                      {formData.location && (
+                        <p className="text-xs text-green-600 mt-1">
+                          ✅ Localização selecionada: <span className="font-medium">{formData.location}</span>
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -888,10 +1052,17 @@ export default function Sell() {
               </h3>
 
               {/* Mensagem */}
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                Para criar anúncios, você precisa preencher o <span className="font-semibold text-gray-900">CEP</span> no seu perfil. 
+              <p className="text-gray-600 mb-4 leading-relaxed">
+                Para criar anúncios, você precisa informar sua <span className="font-semibold text-gray-900">cidade</span> e <span className="font-semibold text-gray-900">estado</span> no seu perfil. 
                 Isso ajuda os compradores a encontrarem produtos perto deles!
               </p>
+
+              {/* Dica */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 w-full">
+                <p className="text-sm text-green-800">
+                  <strong>💡 Dica:</strong> Se você mora na zona rural, selecione a opção "Zona Rural" e informe a cidade de referência mais próxima.
+                </p>
+              </div>
 
               {/* Botões */}
               <div className="flex flex-col sm:flex-row gap-3 w-full">
@@ -904,8 +1075,8 @@ export default function Sell() {
                 <button
                   onClick={() => navigate('/perfil', { 
                     state: { 
-                      message: 'Por favor, preencha seu CEP para poder criar anúncios.',
-                      highlightCep: true 
+                      message: 'Por favor, preencha sua localização para poder criar anúncios.',
+                      from: '/vender' 
                     } 
                   })}
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-lg shadow-green-600/30"

@@ -17,7 +17,9 @@ import {
   Camera,
   Plus,
   Pencil,
-  Trash2
+  Trash2,
+  Tractor,
+  Home
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../lib/database.types';
@@ -82,6 +84,7 @@ export default function Profile() {
             postal_code: (profile as any).postal_code || '',
             company_name: (profile as any).company_name || '',
             bio: (profile as any).bio || '',
+            location_type: (profile as any).location_type || 'urban',
           });
         }
 
@@ -116,25 +119,71 @@ export default function Profile() {
     postal_code: '',
     company_name: '',
     bio: '',
+    location_type: 'urban',
   });
 
   const [loadingCep, setLoadingCep] = useState(false);
+  const [cepError, setCepError] = useState(false);
 
-  // Buscar CEP na API ViaCEP
+  // Buscar CEP na API ViaCEP (só para zona urbana)
   const fetchAddressByCep = async (cep: string) => {
+    // Só busca CEP se for zona urbana
+    if (formData.location_type === 'rural') {
+      return;
+    }
+
     const cleanCep = cep.replace(/\D/g, '');
     
     if (cleanCep.length !== 8) return;
 
     setLoadingCep(true);
     setError(null);
+    setCepError(false);
 
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao consultar CEP');
+      }
+
       const data = await response.json();
 
       if (data.erro) {
-        setError('CEP não encontrado. Verifique e tente novamente.');
+        setCepError(true);
+        setError('❌ CEP não encontrado. Verifique o número digitado e tente novamente.');
+        
+        // Limpar campos que foram preenchidos automaticamente
+        setFormData(prev => ({
+          ...prev,
+          address: '',
+          neighborhood: '',
+          city: '',
+          state: '',
+        }));
+
+        // Mostrar toast de erro
+        const errorToast = document.createElement('div');
+        errorToast.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fadeIn flex items-center gap-3';
+        errorToast.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          <span>CEP não encontrado. Verifique o número digitado.</span>
+        `;
+        document.body.appendChild(errorToast);
+        
+        setTimeout(() => {
+          errorToast.remove();
+        }, 4000);
+
+        return;
+      }
+
+      // Validar se retornou dados válidos
+      if (!data.localidade || !data.uf) {
+        setCepError(true);
+        setError('CEP válido, mas sem dados de endereço. Preencha manualmente.');
         return;
       }
 
@@ -147,19 +196,72 @@ export default function Profile() {
         state: data.uf || prev.state,
       }));
 
+      // Mostrar toast de sucesso
+      const successToast = document.createElement('div');
+      successToast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fadeIn flex items-center gap-3';
+      successToast.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span>✅ Endereço encontrado: ${data.localidade} - ${data.uf}</span>
+      `;
+      document.body.appendChild(successToast);
+      
+      setTimeout(() => {
+        successToast.remove();
+      }, 3000);
+
       console.log('✅ Endereço encontrado:', data);
     } catch (err) {
       console.error('Erro ao buscar CEP:', err);
-      setError('Erro ao buscar CEP. Tente novamente.');
+      setCepError(true);
+      setError('Erro ao consultar CEP. Verifique sua conexão e tente novamente.');
+      
+      // Mostrar toast de erro de conexão
+      const errorToast = document.createElement('div');
+      errorToast.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fadeIn flex items-center gap-3';
+      errorToast.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Erro ao consultar CEP. Tente novamente.</span>
+      `;
+      document.body.appendChild(errorToast);
+      
+      setTimeout(() => {
+        errorToast.remove();
+      }, 4000);
     } finally {
       setLoadingCep(false);
     }
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    
+    // Limpar campos específicos ao mudar tipo de localização
+    if (name === 'location_type') {
+      if (value === 'rural') {
+        // Ao mudar para rural, limpar CEP e bairro
+        setFormData(prev => ({ 
+          ...prev, 
+          [name]: value,
+          postal_code: '',
+          neighborhood: ''
+        }));
+      } else if (value === 'urban') {
+        // Ao mudar para urbana, limpar endereço (que era nome da fazenda)
+        setFormData(prev => ({ 
+          ...prev, 
+          [name]: value,
+          address: ''
+        }));
+      }
+      setCepError(false);
+      return;
+    }
     
     // Formatar CPF/CNPJ
     if (name === 'cpf_cnpj') {
@@ -483,33 +585,90 @@ export default function Profile() {
                       </div>
                     </div>
 
-                    {/* CEP */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        CEP
+                    {/* Tipo de Localização */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tipo de Localização*
                       </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="postal_code"
-                          value={formData.postal_code}
-                          onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                          placeholder="00000-000"
-                          maxLength={9}
-                        />
-                        {loadingCep ? (
-                          <Loader2 className="absolute left-3 top-2.5 text-green-600 animate-spin" size={20} />
-                        ) : (
-                          <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
-                        )}
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer px-4 py-3 border-2 rounded-lg transition hover:bg-gray-50"
+                          style={{
+                            borderColor: formData.location_type === 'urban' ? '#16a34a' : '#e5e7eb',
+                            backgroundColor: formData.location_type === 'urban' ? '#f0fdf4' : 'white'
+                          }}>
+                          <input
+                            type="radio"
+                            name="location_type"
+                            value="urban"
+                            checked={formData.location_type === 'urban'}
+                            onChange={handleInputChange}
+                            className="w-4 h-4 text-green-600 focus:ring-green-500"
+                          />
+                          <Building2 className="text-gray-600" size={20} />
+                          <span className="text-sm font-medium">Zona Urbana (Cidade)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer px-4 py-3 border-2 rounded-lg transition hover:bg-gray-50"
+                          style={{
+                            borderColor: formData.location_type === 'rural' ? '#16a34a' : '#e5e7eb',
+                            backgroundColor: formData.location_type === 'rural' ? '#f0fdf4' : 'white'
+                          }}>
+                          <input
+                            type="radio"
+                            name="location_type"
+                            value="rural"
+                            checked={formData.location_type === 'rural'}
+                            onChange={handleInputChange}
+                            className="w-4 h-4 text-green-600 focus:ring-green-500"
+                          />
+                          <Tractor className="text-green-600" size={20} />
+                          <span className="text-sm font-medium">Zona Rural (Fazenda/Sítio)</span>
+                        </label>
                       </div>
                     </div>
 
-                    {/* Endereço */}
-                    <div className="md:col-span-2">
+                    {/* CEP - Apenas para zona urbana */}
+                    {formData.location_type === 'urban' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          CEP
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            name="postal_code"
+                            value={formData.postal_code}
+                            onChange={handleInputChange}
+                            className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none ${
+                              cepError 
+                                ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                                : 'border-gray-200 focus:border-green-500'
+                            }`}
+                            placeholder="00000-000"
+                            maxLength={9}
+                          />
+                          {loadingCep ? (
+                            <Loader2 className="absolute left-3 top-2.5 text-green-600 animate-spin" size={20} />
+                          ) : cepError ? (
+                            <AlertCircle className="absolute left-3 top-2.5 text-red-500" size={20} />
+                          ) : (
+                            <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          )}
+                        </div>
+                        {cepError && (
+                          <p className="text-xs text-red-600 mt-1">
+                            CEP inválido ou não encontrado
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Endereço/Propriedade */}
+                    <div className={formData.location_type === 'urban' ? '' : 'md:col-span-2'}>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Endereço
+                        {formData.location_type === 'rural' 
+                          ? 'Nome da Fazenda/Propriedade' 
+                          : 'Endereço'
+                        }
                       </label>
                       <div className="relative">
                         <input
@@ -518,34 +677,42 @@ export default function Profile() {
                           value={formData.address}
                           onChange={handleInputChange}
                           className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                          placeholder="Rua, número, complemento"
+                          placeholder={
+                            formData.location_type === 'rural' 
+                              ? 'Ex: Fazenda Santa Rita' 
+                              : 'Rua, número, complemento'
+                          }
+                          disabled={formData.location_type === 'urban' && loadingCep}
                         />
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        <Home className="absolute left-3 top-2.5 text-gray-400" size={20} />
                       </div>
                     </div>
 
-                    {/* Bairro */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Bairro
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="neighborhood"
-                          value={formData.neighborhood}
-                          onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                          placeholder="Seu bairro"
-                        />
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                    {/* Bairro - Apenas para zona urbana */}
+                    {formData.location_type === 'urban' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Bairro
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            name="neighborhood"
+                            value={formData.neighborhood}
+                            onChange={handleInputChange}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                            placeholder="Seu bairro"
+                            disabled={loadingCep}
+                          />
+                          <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Cidade */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Cidade
+                        Cidade*
                       </label>
                       <div className="relative">
                         <input
@@ -553,29 +720,68 @@ export default function Profile() {
                           name="city"
                           value={formData.city}
                           onChange={handleInputChange}
+                          required
                           className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                          placeholder="Sua cidade"
+                          placeholder={
+                            formData.location_type === 'rural' 
+                              ? 'Cidade mais próxima' 
+                              : 'Sua cidade'
+                          }
+                          disabled={formData.location_type === 'urban' && loadingCep}
                         />
                         <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
                       </div>
+                      {formData.location_type === 'rural' && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Informe a cidade de referência mais próxima
+                        </p>
+                      )}
                     </div>
 
                     {/* Estado */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Estado
+                        Estado*
                       </label>
                       <div className="relative">
-                        <input
-                          type="text"
+                        <select
                           name="state"
                           value={formData.state}
                           onChange={handleInputChange}
-                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                          placeholder="UF"
-                          maxLength={2}
-                        />
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          required
+                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none appearance-none bg-white"
+                          disabled={formData.location_type === 'urban' && loadingCep}
+                        >
+                          <option value="">Selecione o estado</option>
+                          <option value="AC">Acre</option>
+                          <option value="AL">Alagoas</option>
+                          <option value="AP">Amapá</option>
+                          <option value="AM">Amazonas</option>
+                          <option value="BA">Bahia</option>
+                          <option value="CE">Ceará</option>
+                          <option value="DF">Distrito Federal</option>
+                          <option value="ES">Espírito Santo</option>
+                          <option value="GO">Goiás</option>
+                          <option value="MA">Maranhão</option>
+                          <option value="MT">Mato Grosso</option>
+                          <option value="MS">Mato Grosso do Sul</option>
+                          <option value="MG">Minas Gerais</option>
+                          <option value="PA">Pará</option>
+                          <option value="PB">Paraíba</option>
+                          <option value="PR">Paraná</option>
+                          <option value="PE">Pernambuco</option>
+                          <option value="PI">Piauí</option>
+                          <option value="RJ">Rio de Janeiro</option>
+                          <option value="RN">Rio Grande do Norte</option>
+                          <option value="RS">Rio Grande do Sul</option>
+                          <option value="RO">Rondônia</option>
+                          <option value="RR">Roraima</option>
+                          <option value="SC">Santa Catarina</option>
+                          <option value="SP">São Paulo</option>
+                          <option value="SE">Sergipe</option>
+                          <option value="TO">Tocantins</option>
+                        </select>
+                        <MapPin className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
                       </div>
                     </div>
 

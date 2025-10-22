@@ -147,34 +147,64 @@ export default function Buy() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">
+      {/* Botão de Filtros Fixo no Mobile */}
+      <button
+        onClick={() => setShowFilters(!showFilters)}
+        className="md:hidden fixed bottom-6 right-6 z-30 bg-green-600 text-white px-6 py-3 rounded-full flex items-center gap-2 shadow-2xl hover:bg-green-700 transition-all"
+      >
+        <SlidersHorizontal size={20} />
+        Filtros {activeFiltersCount > 0 && <span className="bg-white text-green-600 px-2 py-0.5 rounded-full text-xs font-bold">{activeFiltersCount}</span>}
+      </button>
+
+      <div className="mb-8">
+        <h1 className="text-2xl md:text-4xl font-bold text-gray-900">
           {filters.category ? `${filters.category} à Venda` : 'Equipamentos à Venda'}
         </h1>
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="md:hidden bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-        >
-          <SlidersHorizontal size={20} />
-          Filtros {activeFiltersCount > 0 && `(${activeFiltersCount})`}
-        </button>
       </div>
 
+      {/* Overlay para mobile */}
+      {showFilters && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setShowFilters(false)}
+        />
+      )}
+
       <div className="flex gap-6">
-        {/* Sidebar Filters - Desktop sempre visível, Mobile toggle */}
-        <div className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-64 flex-shrink-0`}>
-          <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Filtros</h2>
-              {activeFiltersCount > 0 && (
+        {/* Sidebar Filters - Desktop sempre visível, Mobile drawer lateral */}
+        <div className={`
+          ${showFilters ? 'translate-x-0' : '-translate-x-full'} 
+          md:translate-x-0
+          fixed md:static
+          inset-y-0 left-0
+          z-50 md:z-0
+          w-80 md:w-64
+          bg-white
+          shadow-2xl md:shadow-md
+          transform transition-transform duration-300 ease-in-out
+          overflow-y-auto
+          md:flex-shrink-0
+        `}>
+          <div className="p-6 md:sticky md:top-4 md:rounded-lg">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Filtros</h2>
+              <div className="flex items-center gap-2">
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                  >
+                    <X size={16} />
+                    Limpar
+                  </button>
+                )}
                 <button
-                  onClick={clearFilters}
-                  className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                  onClick={() => setShowFilters(false)}
+                  className="md:hidden text-gray-500 hover:text-gray-700 p-1"
                 >
-                  <X size={16} />
-                  Limpar
+                  <X size={24} />
                 </button>
-              )}
+              </div>
             </div>
 
             {/* Search */}
@@ -308,24 +338,58 @@ export default function Buy() {
         {/* Main Content */}
         <div className="flex-1" ref={resultsRef}>
           {/* Sort and Results Count */}
-          <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="text-sm text-gray-600">
-              {sortedProducts.length} {sortedProducts.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+          <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+            {/* Mobile Layout */}
+            <div className="flex flex-col gap-3 md:hidden">
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-md hover:bg-green-700 transition whitespace-nowrap"
+                >
+                  <SlidersHorizontal size={18} />
+                  Filtros {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+                </button>
+                <div className="text-sm text-gray-600 text-right">
+                  {sortedProducts.length} {sortedProducts.length === 1 ? 'resultado' : 'resultados'}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-700 whitespace-nowrap">Ordenar:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                >
+                  <option value="recent">Mais recentes</option>
+                  <option value="price-low">Menor preço</option>
+                  <option value="price-high">Maior preço</option>
+                  <option value="year-new">Mais novos</option>
+                  <option value="year-old">Mais antigos</option>
+                  <option value="hours-low">Menos horas de uso</option>
+                </select>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-700">Ordenar por:</label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-              >
-                <option value="recent">Mais recentes</option>
-                <option value="price-low">Menor preço</option>
-                <option value="price-high">Maior preço</option>
-                <option value="year-new">Mais novos</option>
-                <option value="year-old">Mais antigos</option>
-                <option value="hours-low">Menos horas de uso</option>
-              </select>
+
+            {/* Desktop Layout */}
+            <div className="hidden md:flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                {sortedProducts.length} {sortedProducts.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-700">Ordenar por:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                >
+                  <option value="recent">Mais recentes</option>
+                  <option value="price-low">Menor preço</option>
+                  <option value="price-high">Maior preço</option>
+                  <option value="year-new">Mais novos</option>
+                  <option value="year-old">Mais antigos</option>
+                  <option value="hours-low">Menos horas de uso</option>
+                </select>
+              </div>
             </div>
           </div>
 
