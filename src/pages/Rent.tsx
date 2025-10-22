@@ -1,8 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ChevronRight } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
+
+interface State {
+  id: number;
+  sigla: string;
+  nome: string;
+}
+
+interface City {
+  id: number;
+  nome: string;
+}
 
 export default function Rent() {
   const location = useLocation();
@@ -21,6 +32,14 @@ export default function Rent() {
     maxHours: 0,
     location: '',
   });
+
+  // Estados e cidades para filtro de localização
+  const [states, setStates] = useState<State[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   // Referência para a seção de resultados
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -46,6 +65,75 @@ export default function Rent() {
       resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [location]);
+
+  // Limpar outros filtros quando a categoria mudar
+  useEffect(() => {
+    setFilters(prev => ({
+      category: prev.category,
+      period: prev.period,
+      brand: '',
+      minPrice: 0,
+      maxPrice: 0,
+      minYear: 0,
+      maxYear: new Date().getFullYear(),
+      maxHours: 0,
+      location: '',
+    }));
+  }, [filters.category]);
+
+  // Carregar estados do IBGE
+  useEffect(() => {
+    const fetchStates = async () => {
+      setLoadingStates(true);
+      try {
+        const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+        const data = await response.json();
+        setStates(data);
+      } catch (error) {
+        console.error('Erro ao carregar estados:', error);
+      } finally {
+        setLoadingStates(false);
+      }
+    };
+
+    fetchStates();
+  }, []);
+
+  // Carregar cidades quando o estado for selecionado
+  useEffect(() => {
+    if (!selectedState) {
+      setCities([]);
+      setSelectedCity('');
+      return;
+    }
+
+    const fetchCities = async () => {
+      setLoadingCities(true);
+      try {
+        const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedState}/municipios?orderBy=nome`);
+        const data = await response.json();
+        setCities(data);
+      } catch (error) {
+        console.error('Erro ao carregar cidades:', error);
+      } finally {
+        setLoadingCities(false);
+      }
+    };
+
+    fetchCities();
+  }, [selectedState]);
+
+  // Atualizar filtro de localização quando estado ou cidade mudarem
+  useEffect(() => {
+    if (selectedCity && selectedState) {
+      const state = states.find(s => s.sigla === selectedState);
+      setFilters(prev => ({ ...prev, location: `${selectedCity} - ${state?.sigla}` }));
+    } else if (selectedState) {
+      setFilters(prev => ({ ...prev, location: selectedState }));
+    } else {
+      setFilters(prev => ({ ...prev, location: '' }));
+    }
+  }, [selectedState, selectedCity, states]);
 
   const { products, loading, error } = useProducts({ 
     type: 'Aluguel',
@@ -128,6 +216,8 @@ export default function Rent() {
       location: '',
     });
     setSearchTerm('');
+    setSelectedState('');
+    setSelectedCity('');
     setSortBy('recent');
     navigate('/alugar', { replace: true });
   };
@@ -320,13 +410,42 @@ export default function Rent() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Localização
               </label>
-              <input
-                type="text"
-                placeholder="Cidade ou estado"
-                value={filters.location}
-                onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-              />
+              
+              {/* Estado */}
+              <div className="mb-2">
+                <select
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  disabled={loadingStates}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none disabled:bg-gray-100"
+                >
+                  <option value="">Todos os estados</option>
+                  {states.map((state) => (
+                    <option key={state.id} value={state.sigla}>
+                      {state.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Cidade */}
+              {selectedState && (
+                <div>
+                  <select
+                    value={selectedCity}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                    disabled={loadingCities}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none disabled:bg-gray-100"
+                  >
+                    <option value="">Todas as cidades</option>
+                    {cities.map((city) => (
+                      <option key={city.id} value={city.nome}>
+                        {city.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
         </div>
