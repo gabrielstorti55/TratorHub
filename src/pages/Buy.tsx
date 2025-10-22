@@ -147,15 +147,6 @@ export default function Buy() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Botão de Filtros Fixo no Mobile */}
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className="md:hidden fixed bottom-6 right-6 z-30 bg-green-600 text-white px-6 py-3 rounded-full flex items-center gap-2 shadow-2xl hover:bg-green-700 transition-all"
-      >
-        <SlidersHorizontal size={20} />
-        Filtros {activeFiltersCount > 0 && <span className="bg-white text-green-600 px-2 py-0.5 rounded-full text-xs font-bold">{activeFiltersCount}</span>}
-      </button>
-
       <div className="mb-8">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-900">
           {filters.category ? `${filters.category} à Venda` : 'Equipamentos à Venda'}
