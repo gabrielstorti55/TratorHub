@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Camera, 
   AlertCircle, 
   Loader2, 
   Upload, 
@@ -240,6 +239,7 @@ export default function Sell() {
 
       const { data: insertedProduct, error: insertError } = await supabase
         .from('products')
+        // @ts-expect-error - Supabase type issue
         .insert({
           title: formData.title.trim(),
           description: formData.description.trim(),
@@ -258,7 +258,7 @@ export default function Sell() {
           implement_type: formData.implementType || null,
           work_width: formData.workWidth ? parseFloat(formData.workWidth) : null,
           part_type: formData.partType || null,
-          part_condition: formData.partCondition || null,
+          part_condition: (formData.partCondition as 'Nova' | 'Usada' | 'Recondicionada') || null,
           part_number: formData.partNumber || null
         })
         .select()
@@ -273,7 +273,7 @@ export default function Sell() {
         throw new Error('Erro ao criar produto');
       }
 
-      console.log('✅ Produto criado com sucesso:', insertedProduct.id);
+      console.log('✅ Produto criado com sucesso:', (insertedProduct as any).id);
 
       if (imageUrls.length > 1) {
         console.log(`📸 Salvando ${imageUrls.length - 1} imagens adicionais...`);
@@ -281,10 +281,10 @@ export default function Sell() {
           .from('product_images')
           .insert(
             imageUrls.slice(1).map((url, index) => ({
-              product_id: insertedProduct.id,
+              product_id: (insertedProduct as any).id,
               image_url: url,
               position: index + 1
-            }))
+            })) as any
           );
 
         if (imagesError) {

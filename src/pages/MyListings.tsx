@@ -24,12 +24,13 @@ export default function MyListings() {
         const { data: products, error: productsError } = await supabase
           .from('products')
           .select('*')
+          // @ts-expect-error - Supabase type issue
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (productsError) throw productsError;
 
-        setUserProducts(products || []);
+        setUserProducts((products as any) || []);
         setLoadingProducts(false);
       } catch (err) {
         console.error('Erro ao verificar usuário:', err);
@@ -51,6 +52,7 @@ export default function MyListings() {
       const { error } = await supabase
         .from('products')
         .delete()
+        // @ts-expect-error - Supabase type issue
         .eq('id', productId);
 
       if (error) throw error;

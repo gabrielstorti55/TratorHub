@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Phone, Mail, ArrowLeft, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Calendar, Phone, ArrowLeft, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Product } from '../hooks/useProducts';
 import type { Database } from '../lib/database.types';
@@ -42,8 +42,9 @@ export default function ProductDetails() {
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
+          // @ts-expect-error - Supabase type issue
           .eq('id', id)
-          .maybeSingle();
+          .single();
 
         if (productError) throw productError;
         if (!productData) {
@@ -52,37 +53,43 @@ export default function ProductDetails() {
           return;
         }
 
-        setProduct(productData);
+        setProduct(productData as any);
 
         // Carregar imagens adicionais
         const { data: imagesData, error: imagesError } = await supabase
           .from('product_images')
           .select('*')
+          // @ts-expect-error - Supabase type issue
           .eq('product_id', id)
           .order('position');
 
         if (imagesError) throw imagesError;
 
         // Combinar imagem principal com imagens adicionais
-        const allImages = [
-          { id: 'main', product_id: id, image_url: productData.image_url, position: 0 },
-          ...(imagesData || [])
+        const allImages: ProductImage[] = [
+          { id: 'main', product_id: id, image_url: (productData as any).image_url, position: 0 },
+          ...((imagesData as any) || []).map((img: any) => ({
+            id: img.id,
+            product_id: img.product_id,
+            image_url: img.image_url,
+            position: img.position
+          }))
         ];
         setProductImages(allImages);
 
         // Carregar perfil do vendedor
-        if (productData.user_id) {
+        if ((productData as any).user_id) {
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('*')
-            .eq('user_id', productData.user_id)
-            .maybeSingle();
+            .eq('user_id', (productData as any).user_id)
+            .single();
 
           if (profileError) {
             console.error('Erro ao carregar perfil do vendedor:', profileError);
             setSellerNotFound(true);
           } else if (profileData) {
-            setSellerInfo(profileData);
+            setSellerInfo(profileData as any);
           } else {
             setSellerNotFound(true);
           }

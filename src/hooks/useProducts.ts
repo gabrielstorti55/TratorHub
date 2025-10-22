@@ -16,6 +16,13 @@ export interface Product {
   image_url: string;
   user_id: string;
   created_at: string;
+  hours?: number | null;
+  power?: number | null;
+  implement_type?: string | null;
+  work_width?: number | null;
+  part_type?: string | null;
+  part_condition?: 'Nova' | 'Usada' | 'Recondicionada' | null;
+  part_number?: string | null;
 }
 
 interface UseProductsOptions {
@@ -47,15 +54,19 @@ export function useProducts(options: UseProductsOptions = {}) {
 
       // Aplicar filtros apenas se estiverem definidos
       if (options.type) {
+        // @ts-expect-error - Supabase type issue
         query = query.eq('type', options.type);
       }
       if (options.brand) {
+        // @ts-expect-error - Supabase type issue
         query = query.eq('brand', options.brand);
       }
       if (options.category) {
+        // @ts-expect-error - Supabase type issue
         query = query.eq('category', options.category);
       }
       if (options.location) {
+        // @ts-expect-error - Supabase type issue
         query = query.eq('location', options.location);
       }
       if (options.maxPrice) {
@@ -63,6 +74,7 @@ export function useProducts(options: UseProductsOptions = {}) {
       }
       if (options.userId) {
         console.log('🔍 Filtrando produtos por userId:', options.userId);
+        // @ts-expect-error - Supabase type issue
         query = query.eq('user_id', options.userId);
       }
 
@@ -72,10 +84,10 @@ export function useProducts(options: UseProductsOptions = {}) {
 
       console.log('📦 Produtos encontrados:', data?.length || 0);
       if (options.userId) {
-        console.log('✅ Produtos do usuário:', data?.map(p => ({ title: p.title, user_id: p.user_id })));
+        console.log('✅ Produtos do usuário:', (data as any)?.map((p: any) => ({ title: p.title, user_id: p.user_id })));
       }
 
-      setProducts(data || []);
+      setProducts((data as any) || []);
       setLoading(false);
       setError(null);
     } catch (err) {

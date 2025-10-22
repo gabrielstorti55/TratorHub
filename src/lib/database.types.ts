@@ -18,6 +18,13 @@ export interface Database {
           user_id: string;
           created_at: string;
           updated_at: string;
+          hours: number | null;
+          power: number | null;
+          implement_type: string | null;
+          work_width: number | null;
+          part_type: string | null;
+          part_condition: 'Nova' | 'Usada' | 'Recondicionada' | null;
+          part_number: string | null;
         };
         Insert: {
           id?: string;
@@ -35,6 +42,13 @@ export interface Database {
           user_id: string;
           created_at?: string;
           updated_at?: string;
+          hours?: number | null;
+          power?: number | null;
+          implement_type?: string | null;
+          work_width?: number | null;
+          part_type?: string | null;
+          part_condition?: 'Nova' | 'Usada' | 'Recondicionada' | null;
+          part_number?: string | null;
         };
         Update: {
           id?: string;
@@ -52,6 +66,36 @@ export interface Database {
           user_id?: string;
           created_at?: string;
           updated_at?: string;
+          hours?: number | null;
+          power?: number | null;
+          implement_type?: string | null;
+          work_width?: number | null;
+          part_type?: string | null;
+          part_condition?: 'Nova' | 'Usada' | 'Recondicionada' | null;
+          part_number?: string | null;
+        };
+      };
+      product_images: {
+        Row: {
+          id: string;
+          product_id: string;
+          image_url: string;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          image_url: string;
+          position: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          image_url?: string;
+          position?: number;
+          created_at?: string;
         };
       };
       profiles: {
@@ -107,3 +151,8 @@ export interface Database {
     };
   };
 }
+
+// Helper types para facilitar o uso
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
+export type Inserts<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert'];
+export type Updates<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update'];

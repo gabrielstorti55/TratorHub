@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
@@ -8,9 +8,17 @@ export default function Rent() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState('recent');
   const [filters, setFilters] = useState({
     category: '',
     period: '',
+    brand: '',
+    minPrice: 0,
+    maxPrice: 0,
+    minYear: 0,
+    maxYear: new Date().getFullYear(),
+    maxHours: 0,
     location: '',
   });
 
@@ -41,23 +49,88 @@ export default function Rent() {
 
   const { products, loading, error } = useProducts({ 
     type: 'Aluguel',
-    ...filters 
+    category: filters.category,
+    period: filters.period
   });
 
-  // Filtrar produtos com base na busca
+  // Filtrar produtos com base na busca e filtros
   const filteredProducts = products.filter(product => {
-    if (!searchTerm) return true;
-    
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      product.title.toLowerCase().includes(searchLower) ||
-      product.brand.toLowerCase().includes(searchLower) ||
-      product.model.toLowerCase().includes(searchLower)
-    );
+    // Filtro de busca por texto
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = (
+        product.title.toLowerCase().includes(searchLower) ||
+        product.brand.toLowerCase().includes(searchLower) ||
+        product.model.toLowerCase().includes(searchLower)
+      );
+      if (!matchesSearch) return false;
+    }
+
+    // Filtro por marca
+    if (filters.brand && product.brand !== filters.brand) return false;
+
+    // Filtro por faixa de preço
+    if (filters.minPrice > 0 && product.price < filters.minPrice) return false;
+    if (filters.maxPrice > 0 && product.price > filters.maxPrice) return false;
+
+    // Filtro por ano
+    const productYear = parseInt(product.year);
+    if (filters.minYear > 0 && productYear < filters.minYear) return false;
+    if (filters.maxYear > 0 && productYear > filters.maxYear) return false;
+
+    // Filtro por horas de uso
+    if (filters.maxHours > 0 && product.hours && product.hours > filters.maxHours) return false;
+
+    // Filtro por localização
+    if (filters.location && !product.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+
+    return true;
   });
+
+  // Ordenar produtos
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      case 'year-new':
+        return parseInt(b.year) - parseInt(a.year);
+      case 'year-old':
+        return parseInt(a.year) - parseInt(b.year);
+      case 'hours-low':
+        return (a.hours || 0) - (b.hours || 0);
+      default: // recent
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+  });
+
+  // Extrair marcas únicas dos produtos
+  const uniqueBrands = Array.from(new Set(products.map(p => p.brand))).sort();
 
   // Categorias disponíveis para aluguel (excluindo Peças e Componentes)
   const categories = ['Tratores', 'Colheitadeiras', 'Implementos'];
+
+  // Limpar todos os filtros
+  const clearFilters = () => {
+    setFilters({
+      category: '',
+      period: '',
+      brand: '',
+      minPrice: 0,
+      maxPrice: 0,
+      minYear: 0,
+      maxYear: new Date().getFullYear(),
+      maxHours: 0,
+      location: '',
+    });
+    setSearchTerm('');
+    setSortBy('recent');
+    navigate('/alugar', { replace: true });
+  };
+
+  // Contar filtros ativos
+  const activeFiltersCount = Object.values(filters).filter(v => v && v !== 0 && v !== new Date().getFullYear()).length + (searchTerm ? 1 : 0);
 
   // Handle search submit
   const handleSearch = (e: React.FormEvent) => {
@@ -79,86 +152,249 @@ export default function Rent() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-gray-900">Alugar Equipamentos</h1>
-      
-      {/* Search Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <input
-            type="text"
-            placeholder="Buscar por nome ou modelo"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-          />
-          <select 
-            value={filters.category}
-            onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-            className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-          >
-            <option value="">Todas as Categorias</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-          <select 
-            value={filters.period}
-            onChange={(e) => setFilters(prev => ({ ...prev, period: e.target.value }))}
-            className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-          >
-            <option value="">Período</option>
-            <option value="Diário">Diário</option>
-            <option value="Semanal">Semanal</option>
-            <option value="Mensal">Mensal</option>
-          </select>
-          <button 
-            type="submit"
-            className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition flex items-center justify-center gap-2"
-          >
-            <Search size={20} />
-            Buscar
-          </button>
-        </form>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold text-gray-900">Alugar Equipamentos</h1>
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="md:hidden bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+        >
+          <SlidersHorizontal size={20} />
+          Filtros {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+        </button>
       </div>
 
-      {/* Results Section */}
-      <div ref={resultsRef}>
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Carregando produtos...</p>
+      <div className="flex gap-6">
+        {/* Sidebar Filters - Desktop sempre visível, Mobile toggle */}
+        <div className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-64 flex-shrink-0`}>
+          <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Filtros</h2>
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                >
+                  <X size={16} />
+                  Limpar
+                </button>
+              )}
+            </div>
+
+            {/* Search */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Buscar
+              </label>
+              <input
+                type="text"
+                placeholder="Nome, marca, modelo..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              />
+            </div>
+
+            {/* Category */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Categoria
+              </label>
+              <select
+                value={filters.category}
+                onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              >
+                <option value="">Todas</option>
+                {categories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Period */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Período de Aluguel
+              </label>
+              <select
+                value={filters.period}
+                onChange={(e) => setFilters(prev => ({ ...prev, period: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              >
+                <option value="">Todos</option>
+                <option value="Diário">Diário</option>
+                <option value="Semanal">Semanal</option>
+                <option value="Mensal">Mensal</option>
+              </select>
+            </div>
+
+            {/* Brand */}
+            {uniqueBrands.length > 0 && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Marca
+                </label>
+                <select
+                  value={filters.brand}
+                  onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                >
+                  <option value="">Todas as marcas</option>
+                  {uniqueBrands.map(brand => (
+                    <option key={brand} value={brand}>{brand}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Price Range */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Faixa de Preço (por período)
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  placeholder="Mín."
+                  value={filters.minPrice || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, minPrice: Number(e.target.value) || 0 }))}
+                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                />
+                <input
+                  type="number"
+                  placeholder="Máx."
+                  value={filters.maxPrice || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, maxPrice: Number(e.target.value) || 0 }))}
+                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Year Range */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ano de Fabricação
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  placeholder="De"
+                  value={filters.minYear || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, minYear: Number(e.target.value) || 0 }))}
+                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                />
+                <input
+                  type="number"
+                  placeholder="Até"
+                  value={filters.maxYear || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, maxYear: Number(e.target.value) || new Date().getFullYear() }))}
+                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Hours (for Tractors/Harvesters) */}
+            {(filters.category === 'Tratores' || filters.category === 'Colheitadeiras' || filters.category === '') && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Horas de Uso (máx.)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Ex: 5000"
+                  value={filters.maxHours || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, maxHours: Number(e.target.value) || 0 }))}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                />
+              </div>
+            )}
+
+            {/* Location */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Localização
+              </label>
+              <input
+                type="text"
+                placeholder="Cidade ou estado"
+                value={filters.location}
+                onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              />
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-8">
-            <p>Erro ao carregar os produtos: {error}</p>
+        {/* Main Content */}
+        <div className="flex-1" ref={resultsRef}>
+          {/* Sort and Results Count */}
+          <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="text-sm text-gray-600">
+              {sortedProducts.length} {sortedProducts.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-700">Ordenar por:</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              >
+                <option value="recent">Mais recentes</option>
+                <option value="price-low">Menor preço</option>
+                <option value="price-high">Maior preço</option>
+                <option value="year-new">Mais novos</option>
+                <option value="year-old">Mais antigos</option>
+                <option value="hours-low">Menos horas de uso</option>
+              </select>
+            </div>
           </div>
-        )}
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              title={product.title}
-              price={product.price.toString()}
-              type={product.type}
-              period={product.period}
-              image={product.image_url}
-              location={product.location}
-              year={product.year}
-            />
-          ))}
-
-          {!loading && filteredProducts.length === 0 && (
-            <div className="col-span-full text-center py-8">
-              <p className="text-gray-600">Nenhum produto encontrado com os filtros selecionados.</p>
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+              <p className="text-gray-600 mt-4">Carregando produtos...</p>
             </div>
           )}
+
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-8">
+              <p>Erro ao carregar os produtos: {error}</p>
+            </div>
+          )}
+
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                title={product.title}
+                price={product.price.toString()}
+                type={product.type}
+                period={product.period}
+                image={product.image_url}
+                location={product.location}
+                year={product.year}
+              />
+            ))}
+
+            {!loading && sortedProducts.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-600 text-lg mb-2">Nenhum produto encontrado</p>
+                <p className="text-gray-500 text-sm">Tente ajustar seus filtros para ver mais resultados</p>
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="mt-4 text-green-600 hover:text-green-700 font-medium"
+                  >
+                    Limpar todos os filtros
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
