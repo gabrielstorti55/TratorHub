@@ -124,6 +124,35 @@ export default function Profile() {
 
   const [loadingCep, setLoadingCep] = useState(false);
   const [cepError, setCepError] = useState(false);
+  const [cities, setCities] = useState<Array<{ nome: string }>>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [manuallyEditedAddress, setManuallyEditedAddress] = useState(false);
+  const [cepData, setCepData] = useState<{ city: string; state: string } | null>(null);
+
+  // Carregar cidades quando o estado for selecionado
+  useEffect(() => {
+    if (formData.state && formData.state.length === 2) {
+      const fetchCities = async () => {
+        setLoadingCities(true);
+        try {
+          const response = await fetch(
+            `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${formData.state}/municipios?orderBy=nome`
+          );
+          const data = await response.json();
+          setCities(data);
+        } catch (err) {
+          console.error('Erro ao carregar cidades:', err);
+          setCities([]);
+        } finally {
+          setLoadingCities(false);
+        }
+      };
+
+      fetchCities();
+    } else {
+      setCities([]);
+    }
+  }, [formData.state]);
 
   // Buscar CEP na API ViaCEP (só para zona urbana)
   const fetchAddressByCep = async (cep: string) => {
@@ -195,6 +224,15 @@ export default function Profile() {
         city: data.localidade || prev.city,
         state: data.uf || prev.state,
       }));
+
+      // Armazenar dados do CEP para validação posterior
+      setCepData({
+        city: data.localidade,
+        state: data.uf
+      });
+
+      // Resetar flag de edição manual ao preencher via CEP
+      setManuallyEditedAddress(false);
 
       // Mostrar toast de sucesso
       const successToast = document.createElement('div');
@@ -293,13 +331,25 @@ export default function Profile() {
       // Buscar endereço automaticamente quando CEP estiver completo
       if (numbers.length === 8) {
         fetchAddressByCep(numbers);
+      } else {
+        // Se o usuário está mudando o CEP, resetar a flag de edição manual e dados do CEP
+        setManuallyEditedAddress(false);
+        setCepData(null);
       }
       return;
     }
 
     // Estado sempre em maiúsculo
     if (name === 'state') {
-      setFormData(prev => ({ ...prev, [name]: value.toUpperCase() }));
+      setManuallyEditedAddress(true); // Marca que o usuário editou manualmente
+      setFormData(prev => ({ ...prev, [name]: value.toUpperCase(), city: '' }));
+      return;
+    }
+
+    // Se o usuário mudar a cidade manualmente
+    if (name === 'city') {
+      setManuallyEditedAddress(true); // Marca que o usuário editou manualmente
+      setFormData(prev => ({ ...prev, [name]: value }));
       return;
     }
 
@@ -322,6 +372,7 @@ export default function Profile() {
       // Validar campos obrigatórios
       if (!formData.full_name || !formData.cpf_cnpj || !formData.phone) {
         setError('Por favor, preencha todos os campos obrigatórios.');
+        setLoading(false);
         return;
       }
 
@@ -329,7 +380,22 @@ export default function Profile() {
       const phoneNumbers = formData.phone.replace(/\D/g, '');
       if (phoneNumbers.length !== 11) {
         setError('Telefone inválido. Use o formato (00) 00000-0000 com 11 dígitos.');
+        setLoading(false);
         return;
+      }
+
+      // Validar se zona urbana tem CEP preenchido e se os dados batem
+      if (formData.location_type === 'urban' && formData.postal_code && cepData) {
+        const cleanCep = formData.postal_code.replace(/\D/g, '');
+        
+        if (cleanCep.length === 8) {
+          // Verificar se cidade ou estado foi alterado manualmente
+          if (formData.city !== cepData.city || formData.state !== cepData.state) {
+            setError(`Os dados não correspondem ao CEP informado. CEP ${formData.postal_code} pertence a ${cepData.city} - ${cepData.state}. Por favor, corrija o CEP ou mantenha os dados preenchidos automaticamente.`);
+            setLoading(false);
+            return;
+          }
+        }
       }
 
       // Remover formatação dos campos antes de enviar
@@ -717,21 +783,29 @@ export default function Profile() {
                         Cidade*
                       </label>
                       <div className="relative">
-                        <input
-                          type="text"
+                        <select
                           name="city"
                           value={formData.city}
                           onChange={handleInputChange}
                           required
-                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                          placeholder={
-                            formData.location_type === 'rural' 
-                              ? 'Cidade mais próxima' 
-                              : 'Sua cidade'
-                          }
-                          disabled={formData.location_type === 'urban' && loadingCep}
-                        />
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none appearance-none bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                          disabled={(formData.location_type === 'urban' && loadingCep) || !formData.state || loadingCities}
+                        >
+                          <option value="">
+                            {!formData.state 
+                              ? 'Selecione o estado primeiro' 
+                              : loadingCities 
+                                ? 'Carregando cidades...' 
+                                : 'Selecione a cidade'}
+                          </option>
+                          {cities.map((city) => (
+                            <option key={city.nome} value={city.nome}>
+                              {city.nome}
+                            </option>
+                          ))}
+                        </select>
+                        <MapPin className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
+                        <ChevronRight className="absolute right-3 top-2.5 text-gray-400 pointer-events-none rotate-90" size={20} />
                       </div>
                       {formData.location_type === 'rural' && (
                         <p className="text-xs text-gray-500 mt-1">
@@ -785,6 +859,11 @@ export default function Profile() {
                         </select>
                         <MapPin className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
                       </div>
+                      {manuallyEditedAddress && formData.location_type === 'urban' && (
+                        <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                          ⚠️ Você alterou manualmente. O CEP não será mais usado para preencher estes campos.
+                        </p>
+                      )}
                     </div>
 
                     {/* Nome da Empresa (Opcional) */}
