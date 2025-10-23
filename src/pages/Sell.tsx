@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   AlertCircle, 
@@ -63,6 +63,8 @@ export default function Sell() {
   const [states, setStates] = useState<Array<{ sigla: string; nome: string }>>([]);
   const [cities, setCities] = useState<Array<{ nome: string }>>([]);
   const [loadingCities, setLoadingCities] = useState(false);
+  const [yearError, setYearError] = useState(false);
+  const yearInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -204,6 +206,17 @@ export default function Sell() {
       return;
     }
 
+    // Validar ano em tempo real
+    if (name === 'year') {
+      const currentYear = new Date().getFullYear();
+      const yearValue = parseInt(value);
+      if (value && yearValue > currentYear) {
+        setYearError(true);
+      } else {
+        setYearError(false);
+      }
+    }
+
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -267,6 +280,21 @@ export default function Sell() {
       if (!formData.location || formData.location.trim() === '') {
         setError('Por favor, selecione a localização do produto.');
         setLoading(false);
+        return;
+      }
+
+      // Validar se o ano não é no futuro
+      const currentYear = new Date().getFullYear();
+      const productYear = parseInt(formData.year);
+      if (productYear > currentYear) {
+        setError(`O ano de fabricação não pode ser no futuro. O ano máximo é ${currentYear}.`);
+        setYearError(true);
+        setLoading(false);
+        // Scroll para o campo de ano
+        if (yearInputRef.current) {
+          yearInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          yearInputRef.current.focus();
+        }
         return;
       }
 
@@ -691,17 +719,27 @@ export default function Sell() {
                     </label>
                     <div className="relative">
                       <input
-                        type="text"
+                        ref={yearInputRef}
+                        type="number"
                         name="year"
                         value={formData.year}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                        onWheel={(e) => e.currentTarget.blur()}
+                        min="1900"
+                        className={`w-full pl-10 pr-4 py-2.5 border ${yearError ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none`}
                         placeholder="Ex: 2020"
-                        maxLength={4}
                         required
                       />
-                      <Calendar className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <Calendar className={`absolute left-3 top-2.5 ${yearError ? 'text-red-500' : 'text-gray-400'}`} size={20} />
+                      {yearError && (
+                        <AlertCircle className="absolute right-3 top-2.5 text-red-500" size={20} />
+                      )}
                     </div>
+                    {yearError && (
+                      <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                        ❌ O ano de fabricação não pode ser no futuro. O ano máximo é {new Date().getFullYear()}.
+                      </p>
+                    )}
                   </div>
                 </div>
 

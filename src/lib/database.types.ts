@@ -18,6 +18,7 @@ export interface Database {
           user_id: string;
           created_at: string;
           updated_at: string;
+          status: 'available' | 'sold' | 'rented';
           hours: number | null;
           power: number | null;
           implement_type: string | null;
@@ -42,6 +43,7 @@ export interface Database {
           user_id: string;
           created_at?: string;
           updated_at?: string;
+          status?: 'available' | 'sold' | 'rented';
           hours?: number | null;
           power?: number | null;
           implement_type?: string | null;
@@ -66,6 +68,7 @@ export interface Database {
           user_id?: string;
           created_at?: string;
           updated_at?: string;
+          status?: 'available' | 'sold' | 'rented';
           hours?: number | null;
           power?: number | null;
           implement_type?: string | null;

@@ -62,8 +62,8 @@ export default function Login() {
       }
 
       const phoneNumbers = formData.phone.replace(/\D/g, '');
-      if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
-        setError('Telefone inválido');
+      if (phoneNumbers.length !== 11) {
+        setError('Telefone inválido. Use o formato (00) 00000-0000 com 11 dígitos.');
         return false;
       }
 
@@ -93,12 +93,7 @@ export default function Login() {
 
     if (name === 'phone') {
       const numbers = value.replace(/\D/g, '');
-      let formatted = numbers;
-      if (numbers.length <= 10) {
-        formatted = numbers.replace(/(\d{2})(\d{4})(\d{4})/g, '($1) $2-$3');
-      } else {
-        formatted = numbers.replace(/(\d{2})(\d{5})(\d{4})/g, '($1) $2-$3');
-      }
+      const formatted = numbers.replace(/(\d{2})(\d{5})(\d{4})/g, '($1) $2-$3');
       setFormData(prev => ({ ...prev, [name]: formatted }));
       return;
     }

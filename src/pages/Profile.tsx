@@ -279,12 +279,7 @@ export default function Profile() {
     // Formatar telefone
     if (name === 'phone') {
       const numbers = value.replace(/\D/g, '');
-      let formatted = numbers;
-      if (numbers.length <= 10) {
-        formatted = numbers.replace(/(\d{2})(\d{4})(\d{4})/g, '($1) $2-$3');
-      } else {
-        formatted = numbers.replace(/(\d{2})(\d{5})(\d{4})/g, '($1) $2-$3');
-      }
+      const formatted = numbers.replace(/(\d{2})(\d{5})(\d{4})/g, '($1) $2-$3');
       setFormData(prev => ({ ...prev, [name]: formatted }));
       return;
     }
@@ -330,6 +325,13 @@ export default function Profile() {
         return;
       }
 
+      // Validar telefone
+      const phoneNumbers = formData.phone.replace(/\D/g, '');
+      if (phoneNumbers.length !== 11) {
+        setError('Telefone inválido. Use o formato (00) 00000-0000 com 11 dígitos.');
+        return;
+      }
+
       // Remover formatação dos campos antes de enviar
       const cleanData = {
         ...formData,
@@ -352,7 +354,7 @@ export default function Profile() {
         if (updateError.message.includes('CPF/CNPJ inválido')) {
           setError('CPF/CNPJ inválido. Verifique se os números estão corretos.');
         } else if (updateError.message.includes('Telefone inválido')) {
-          setError('Telefone inválido. Use o formato (00) 00000-0000 para celular ou (00) 0000-0000 para fixo.');
+          setError('Telefone inválido. Use o formato (00) 00000-0000 com 11 dígitos.');
         } else if (updateError.message.includes('CEP inválido')) {
           setError('CEP inválido. Use o formato 00000-000.');
         } else if (updateError.message.includes('Estado inválido')) {
