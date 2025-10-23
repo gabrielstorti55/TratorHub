@@ -12,7 +12,7 @@ export default function Contact() {
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
             <Phone className="mx-auto text-green-600 mb-4" size={32} />
             <h3 className="text-lg font-semibold mb-2">Telefone</h3>
-            <p className="text-gray-600">(11) 99999-9999</p>
+            <p className="text-gray-600">(16) 99444-0505</p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
@@ -24,7 +24,7 @@ export default function Contact() {
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
             <MapPin className="mx-auto text-green-600 mb-4" size={32} />
             <h3 className="text-lg font-semibold mb-2">Endereço</h3>
-            <p className="text-gray-600">São Paulo, SP</p>
+            <p className="text-gray-600">Franca, SP</p>
           </div>
         </div>
 

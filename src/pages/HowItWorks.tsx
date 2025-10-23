@@ -11,9 +11,9 @@ export default function HowItWorks() {
           <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <ShoppingCart className="text-green-600" size={32} />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Encontre o Equipamento</h3>
+          <h3 className="text-xl font-semibold mb-2">1. Navegue pelos Anúncios</h3>
           <p className="text-gray-600">
-            Busque entre milhares de máquinas e implementos agrícolas disponíveis.
+            Explore os anúncios de máquinas e implementos disponíveis para compra ou aluguel na região.
           </p>
         </div>
 
@@ -21,9 +21,9 @@ export default function HowItWorks() {
           <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <Shield className="text-green-600" size={32} />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Negocie com Segurança</h3>
+          <h3 className="text-xl font-semibold mb-2">2. Entre em Contato</h3>
           <p className="text-gray-600">
-            Utilize nossa plataforma segura para todas as negociações e pagamentos.
+            Encontrou algo interessante? Entre em contato direto com o anunciante pelo telefone ou WhatsApp.
           </p>
         </div>
 
@@ -31,9 +31,9 @@ export default function HowItWorks() {
           <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <DollarSign className="text-green-600" size={32} />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Realize o Pagamento</h3>
+          <h3 className="text-xl font-semibold mb-2">3. Negocie Diretamente</h3>
           <p className="text-gray-600">
-            Escolha entre várias opções de pagamento seguras e garantidas.
+            Converse, tire dúvidas e negocie o preço e condições diretamente com o proprietário.
           </p>
         </div>
 
@@ -41,9 +41,9 @@ export default function HowItWorks() {
           <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <Truck className="text-green-600" size={32} />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Receba seu Equipamento</h3>
+          <h3 className="text-xl font-semibold mb-2">4. Combine os Detalhes</h3>
           <p className="text-gray-600">
-            Acompanhe a entrega e receba seu equipamento no prazo combinado.
+            Acerte a forma de pagamento, entrega ou retirada diretamente com o vendedor ou locador.
           </p>
         </div>
       </div>
@@ -55,28 +55,42 @@ export default function HowItWorks() {
           <details className="bg-white rounded-lg shadow-md p-4">
             <summary className="font-semibold cursor-pointer">Como faço para anunciar?</summary>
             <p className="mt-2 text-gray-600">
-              Para anunciar, basta criar uma conta gratuita e clicar em "Anunciar Agora". Preencha as informações do seu equipamento e publique seu anúncio.
+              Para anunciar, você precisa criar uma conta gratuita. Depois, clique em "Anunciar" no menu, preencha os dados do seu equipamento, adicione fotos e publique. É simples e rápido!
             </p>
           </details>
 
           <details className="bg-white rounded-lg shadow-md p-4">
-            <summary className="font-semibold cursor-pointer">Quais são as formas de pagamento?</summary>
+            <summary className="font-semibold cursor-pointer">A plataforma cobra alguma taxa?</summary>
             <p className="mt-2 text-gray-600">
-              Aceitamos diversas formas de pagamento, incluindo cartão de crédito, boleto bancário e transferência bancária.
+              Não! A AgroMachines é gratuita tanto para anunciar quanto para buscar equipamentos. Conectamos pessoas sem cobrar comissões.
+            </p>
+          </details>
+
+          <details className="bg-white rounded-lg shadow-md p-4">
+            <summary className="font-semibold cursor-pointer">Como funciona o pagamento?</summary>
+            <p className="mt-2 text-gray-600">
+              O pagamento é combinado diretamente entre comprador e vendedor. Somos uma plataforma de anúncios, não intermediamos pagamentos. Recomendamos sempre documentar a negociação.
             </p>
           </details>
 
           <details className="bg-white rounded-lg shadow-md p-4">
             <summary className="font-semibold cursor-pointer">Como funciona o aluguel?</summary>
             <p className="mt-2 text-gray-600">
-              O aluguel é feito diretamente com o proprietário do equipamento. Você pode escolher entre períodos diários, semanais ou mensais.
+              O aluguel funciona da mesma forma: você encontra o anúncio, entra em contato com o proprietário e combina período, valor e condições diretamente com ele.
             </p>
           </details>
 
           <details className="bg-white rounded-lg shadow-md p-4">
-            <summary className="font-semibold cursor-pointer">O site oferece garantia?</summary>
+            <summary className="font-semibold cursor-pointer">Vocês fazem entrega dos equipamentos?</summary>
             <p className="mt-2 text-gray-600">
-              Sim, oferecemos garantia em todas as transações realizadas através da nossa plataforma, protegendo tanto compradores quanto vendedores.
+              Não fazemos entrega. A logística é combinada entre comprador e vendedor. Alguns anunciantes podem oferecer entrega, outros preferem que o comprador retire no local.
+            </p>
+          </details>
+
+          <details className="bg-white rounded-lg shadow-md p-4">
+            <summary className="font-semibold cursor-pointer">Como posso confiar nos anúncios?</summary>
+            <p className="mt-2 text-gray-600">
+              Recomendamos sempre conversar bem com o anunciante, pedir mais fotos se necessário e, quando possível, visitar o equipamento pessoalmente antes de fechar negócio. Use o bom senso!
             </p>
           </details>
         </div>

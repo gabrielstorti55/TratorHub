@@ -9,10 +9,13 @@ export default function About() {
         
         <div className="prose max-w-none mb-12">
           <p className="text-lg text-gray-600 mb-6">
-            A AgroMachines é a principal plataforma de compra, venda e aluguel de máquinas e implementos agrícolas do Brasil. Nossa missão é conectar agricultores e fornecedores de equipamentos de forma segura e eficiente.
+            A AgroMachines nasceu da necessidade real de facilitar a conexão entre produtores rurais e fornecedores de equipamentos agrícolas. Somos uma plataforma em crescimento, focada em tornar mais acessível e transparente o processo de compra, venda e aluguel de máquinas.
+          </p>
+          <p className="text-lg text-gray-600 mb-6">
+            Criada em 2025 por uma equipe apaixonada por tecnologia e agronegócio, nossa missão é simples: conectar quem precisa de equipamentos com quem pode fornecer, de forma prática e confiável.
           </p>
           <p className="text-lg text-gray-600">
-            Fundada em 2024, nossa plataforma já ajudou milhares de agricultores a encontrar os equipamentos ideais para suas operações, sempre com segurança e garantia em todas as transações.
+            Estamos em constante evolução, ouvindo nossos usuários e melhorando a plataforma a cada dia. Acreditamos que a tecnologia pode democratizar o acesso a equipamentos agrícolas de qualidade, ajudando pequenos e médios produtores a crescerem seus negócios.
           </p>
         </div>
 
@@ -20,54 +23,58 @@ export default function About() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <Users className="text-green-600 mb-4" size={32} />
-            <h3 className="text-xl font-semibold mb-2">Comunidade</h3>
+            <h3 className="text-xl font-semibold mb-2">Conexão Real</h3>
             <p className="text-gray-600">
-              Construímos uma comunidade forte de agricultores e fornecedores comprometidos com o desenvolvimento do setor.
+              Facilitamos o contato direto entre produtores e fornecedores, sem intermediários, de forma transparente e honesta.
             </p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
             <Target className="text-green-600 mb-4" size={32} />
-            <h3 className="text-xl font-semibold mb-2">Inovação</h3>
+            <h3 className="text-xl font-semibold mb-2">Simplicidade</h3>
             <p className="text-gray-600">
-              Buscamos constantemente novas tecnologias e soluções para melhorar a experiência dos nossos usuários.
+              Nossa plataforma foi criada para ser fácil de usar, mesmo para quem não tem familiaridade com tecnologia.
             </p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
             <Shield className="text-green-600 mb-4" size={32} />
-            <h3 className="text-xl font-semibold mb-2">Segurança</h3>
+            <h3 className="text-xl font-semibold mb-2">Confiança</h3>
             <p className="text-gray-600">
-              Garantimos a segurança em todas as transações realizadas em nossa plataforma.
+              Trabalhamos para criar um ambiente seguro, com verificação de anúncios e suporte ao usuário.
             </p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
             <Award className="text-green-600 mb-4" size={32} />
-            <h3 className="text-xl font-semibold mb-2">Qualidade</h3>
+            <h3 className="text-xl font-semibold mb-2">Crescimento</h3>
             <p className="text-gray-600">
-              Mantemos um alto padrão de qualidade em todos os anúncios e serviços oferecidos.
+              Estamos em constante evolução, crescendo junto com nossa comunidade de usuários.
             </p>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="bg-gray-900 text-white rounded-lg p-8">
+        {/* <div className="bg-gray-900 text-white rounded-lg p-8">
+          <h2 className="text-2xl font-semibold text-center mb-8">Nossa Jornada Até Agora</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-green-400 mb-2">+5000</div>
-              <div className="text-gray-300">Equipamentos Anunciados</div>
+              <div className="text-4xl font-bold text-green-400 mb-2">150+</div>
+              <div className="text-gray-300">Anúncios Ativos</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-green-400 mb-2">+3000</div>
-              <div className="text-gray-300">Usuários Ativos</div>
+              <div className="text-4xl font-bold text-green-400 mb-2">80+</div>
+              <div className="text-gray-300">Usuários Cadastrados</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-green-400 mb-2">+1000</div>
-              <div className="text-gray-300">Negócios Realizados</div>
+              <div className="text-4xl font-bold text-green-400 mb-2">25+</div>
+              <div className="text-gray-300">Negociações Realizadas</div>
             </div>
           </div>
-        </div>
+          <p className="text-center text-gray-400 mt-6 text-sm">
+            * Números atualizados em outubro de 2025
+          </p>
+        </div> */}
       </div>
     </div>
   );
