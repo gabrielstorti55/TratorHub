@@ -292,10 +292,6 @@ export default function Sell() {
     console.log(`  - Total selecionado: ${files.length}`);
     console.log(`  - Arquivos válidos: ${validFiles.length}`);
     console.log(`  - Arquivos com erro: ${errors.length}`);
-    console.log(`\n📋 Resumo da validação:`);
-    console.log(`  - Total selecionado: ${files.length}`);
-    console.log(`  - Arquivos válidos: ${validFiles.length}`);
-    console.log(`  - Arquivos com erro: ${errors.length}`);
 
     // Mostrar erros se houver
     if (errors.length > 0 && validFiles.length === 0) {
