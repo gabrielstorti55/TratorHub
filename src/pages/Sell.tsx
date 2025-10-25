@@ -251,9 +251,9 @@ export default function Sell() {
         return;
       }
 
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) {
         console.error(`❌ Arquivo ${file.name} é muito grande`);
-        setError(`A imagem "${file.name}" deve ter no máximo 5MB.`);
+        setError(`A imagem "${file.name}" deve ter no máximo 10MB.`);
         return;
       }
 
