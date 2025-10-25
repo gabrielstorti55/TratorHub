@@ -228,10 +228,16 @@ export default function Sell() {
       return;
     }
 
+    console.log('=== INÍCIO DO UPLOAD ===');
     console.log(`📸 ${files.length} arquivo(s) selecionado(s)`);
+    console.log(`📊 Fotos já adicionadas: ${images.length}/10`);
     
-    if (images.length + files.length > 10) {
-      setError('Você pode adicionar no máximo 10 fotos.');
+    // Calcular quantas fotos ainda cabem
+    const remainingSlots = 10 - images.length;
+    console.log(`🎯 Slots disponíveis: ${remainingSlots}`);
+    
+    if (remainingSlots === 0) {
+      setError('Você já atingiu o limite de 10 fotos.');
       e.target.value = '';
       return;
     }
@@ -239,55 +245,105 @@ export default function Sell() {
     const validFiles: File[] = [];
     const errors: string[] = [];
     
+    console.log('🔍 Verificando cada arquivo:');
     files.forEach((file, index) => {
-      console.log(`Verificando arquivo ${index + 1}:`, {
+      const fileSizeMB = file.size / 1024 / 1024;
+      console.log(`\n  Arquivo ${index + 1}/${files.length}:`, {
         nome: file.name,
         tipo: file.type,
-        tamanho: `${(file.size / 1024 / 1024).toFixed(2)} MB`
+        tamanho: `${fileSizeMB.toFixed(2)} MB`,
+        tamanhoByte: file.size
       });
 
       // Aceitar qualquer tipo de imagem no mobile
       if (!file.type.startsWith('image/')) {
-        console.error(`❌ Arquivo ${file.name} não é uma imagem`);
+        console.error(`  ❌ REJEITADO: ${file.name} - não é uma imagem (tipo: ${file.type})`);
         errors.push(`"${file.name}" não é uma imagem válida`);
         return;
       }
 
-      if (file.size > 10 * 1024 * 1024) {
-        console.error(`❌ Arquivo ${file.name} é muito grande`);
-        errors.push(`"${file.name}" excede 10MB`);
+      // Limite de 15MB por foto (aumentado para compatibilidade com celulares)
+      const maxSizeMB = 15;
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        console.error(`  ❌ REJEITADO: ${file.name} - muito grande (${fileSizeMB.toFixed(2)} MB > ${maxSizeMB} MB)`);
+        errors.push(`"${file.name}" excede ${maxSizeMB}MB`);
         return;
       }
 
+      console.log(`  ✅ VÁLIDO: ${file.name} (${fileSizeMB.toFixed(2)} MB)`);
       validFiles.push(file);
     });
+    
+    console.log(`\n📋 Resumo da validação:`);
+    console.log(`  - Total selecionado: ${files.length}`);
+    console.log(`  - Arquivos válidos: ${validFiles.length}`);
+    console.log(`  - Arquivos com erro: ${errors.length}`);
+    console.log(`\n📋 Resumo da validação:`);
+    console.log(`  - Total selecionado: ${files.length}`);
+    console.log(`  - Arquivos válidos: ${validFiles.length}`);
+    console.log(`  - Arquivos com erro: ${errors.length}`);
 
     // Mostrar erros se houver
     if (errors.length > 0 && validFiles.length === 0) {
+      console.log('❌ TODOS os arquivos foram rejeitados');
       setError(`Erro: ${errors.join(', ')}`);
       e.target.value = '';
       return;
     }
 
     if (validFiles.length > 0) {
-      console.log(`✅ ${validFiles.length} arquivo(s) válido(s) de ${files.length} total`);
+      // Limitar ao número de slots disponíveis
+      const filesToAdd = validFiles.slice(0, remainingSlots);
+      const filesRejected = validFiles.length - filesToAdd.length;
+      
+      console.log(`\n🎯 Processamento final:`);
+      console.log(`  - Arquivos válidos: ${validFiles.length}`);
+      console.log(`  - Slots disponíveis: ${remainingSlots}`);
+      console.log(`  - Serão adicionados: ${filesToAdd.length}`);
+      console.log(`  - Rejeitados por limite: ${filesRejected}`);
+      
+      if (filesRejected > 0) {
+        console.log(`⚠️ ${filesRejected} arquivo(s) não adicionado(s) (limite de 10 fotos)`);
+      }
       
       // Criar previews para todos os arquivos válidos
-      const newImages: ImageFile[] = validFiles.map(file => ({
-        file,
-        preview: URL.createObjectURL(file),
-        uploading: false
-      }));
+      console.log(`\n🖼️ Criando previews...`);
+      const newImages: ImageFile[] = filesToAdd.map((file, idx) => {
+        const preview = URL.createObjectURL(file);
+        console.log(`  ${idx + 1}. Preview criado para: ${file.name}`);
+        return {
+          file,
+          preview,
+          uploading: false
+        };
+      });
       
-      console.log(`🖼️ ${newImages.length} previews criados`);
+      console.log(`✅ ${newImages.length} previews criados com sucesso`);
+      console.log(`📦 Adicionando ao estado...`);
       
       // Adicionar todas as imagens de uma vez
-      setImages(prev => [...prev, ...newImages]);
+      setImages(prev => {
+        const updated = [...prev, ...newImages];
+        console.log(`📊 Estado atualizado: ${prev.length} → ${updated.length} fotos`);
+        return updated;
+      });
       
-      // Mostrar aviso se algumas foram rejeitadas
+      console.log('=== FIM DO UPLOAD ===\n');
+      
+      // Mostrar avisos se necessário
+      const warnings: string[] = [];
+      
+      if (filesRejected > 0) {
+        warnings.push(`${filesRejected} foto(s) não adicionada(s) - limite de 10 fotos atingido`);
+      }
+      
       if (errors.length > 0) {
-        setError(`${validFiles.length} fotos adicionadas. Ignoradas: ${errors.join(', ')}`);
-        setTimeout(() => setError(null), 5000); // Limpar erro após 5s
+        warnings.push(`Ignoradas: ${errors.join(', ')}`);
+      }
+      
+      if (warnings.length > 0) {
+        setError(`${filesToAdd.length} foto(s) adicionada(s). ${warnings.join('. ')}`);
+        setTimeout(() => setError(null), 6000); // Limpar erro após 6s
       } else {
         setError(null);
       }
