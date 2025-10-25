@@ -232,10 +232,12 @@ export default function Sell() {
     
     if (images.length + files.length > 10) {
       setError('Você pode adicionar no máximo 10 fotos.');
+      e.target.value = '';
       return;
     }
 
     const validFiles: File[] = [];
+    const errors: string[] = [];
     
     files.forEach((file, index) => {
       console.log(`Verificando arquivo ${index + 1}:`, {
@@ -247,21 +249,28 @@ export default function Sell() {
       // Aceitar qualquer tipo de imagem no mobile
       if (!file.type.startsWith('image/')) {
         console.error(`❌ Arquivo ${file.name} não é uma imagem`);
-        setError(`O arquivo "${file.name}" não é uma imagem válida.`);
+        errors.push(`"${file.name}" não é uma imagem válida`);
         return;
       }
 
       if (file.size > 10 * 1024 * 1024) {
         console.error(`❌ Arquivo ${file.name} é muito grande`);
-        setError(`A imagem "${file.name}" deve ter no máximo 10MB.`);
+        errors.push(`"${file.name}" excede 10MB`);
         return;
       }
 
       validFiles.push(file);
     });
 
+    // Mostrar erros se houver
+    if (errors.length > 0 && validFiles.length === 0) {
+      setError(`Erro: ${errors.join(', ')}`);
+      e.target.value = '';
+      return;
+    }
+
     if (validFiles.length > 0) {
-      console.log(`✅ ${validFiles.length} arquivo(s) válido(s)`);
+      console.log(`✅ ${validFiles.length} arquivo(s) válido(s) de ${files.length} total`);
       
       // Criar previews para todos os arquivos válidos
       const newImages: ImageFile[] = validFiles.map(file => ({
@@ -274,7 +283,14 @@ export default function Sell() {
       
       // Adicionar todas as imagens de uma vez
       setImages(prev => [...prev, ...newImages]);
-      setError(null);
+      
+      // Mostrar aviso se algumas foram rejeitadas
+      if (errors.length > 0) {
+        setError(`${validFiles.length} fotos adicionadas. Ignoradas: ${errors.join(', ')}`);
+        setTimeout(() => setError(null), 5000); // Limpar erro após 5s
+      } else {
+        setError(null);
+      }
     }
 
     // Limpar o input para permitir selecionar o mesmo arquivo novamente
