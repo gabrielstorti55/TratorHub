@@ -1,6 +1,7 @@
-import React from 'react';
+import { memo } from 'react';
 import { MapPin, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { optimizeImageUrl, generateSrcSet } from '../lib/imageOptimization';
 
 interface ProductCardProps {
   id: string;
@@ -13,7 +14,7 @@ interface ProductCardProps {
   year: string;
 }
 
-export default function ProductCard({
+const ProductCard = memo(function ProductCard({
   id,
   title,
   price,
@@ -25,6 +26,15 @@ export default function ProductCard({
 }: ProductCardProps) {
   const navigate = useNavigate();
 
+  // Otimizar URL da imagem
+  const optimizedImage = optimizeImageUrl(image, { 
+    width: 400, 
+    quality: 80,
+    format: 'webp' 
+  });
+  
+  const imageSrcSet = generateSrcSet(image);
+
   return (
     <div 
       className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition group cursor-pointer"
@@ -32,8 +42,11 @@ export default function ProductCard({
     >
       <div className="relative">
         <img
-          src={image}
+          src={optimizedImage}
+          srcSet={imageSrcSet}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           alt={title}
+          loading="lazy"
           className="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
         />
         <div className="absolute top-3 right-3">
@@ -76,4 +89,6 @@ export default function ProductCard({
       </div>
     </div>
   );
-}
+});
+
+export default ProductCard;

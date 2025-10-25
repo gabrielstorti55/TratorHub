@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase, handleSupabaseError } from '../lib/supabase';
 
 export interface Product {
@@ -34,14 +34,34 @@ interface UseProductsOptions {
   userId?: string;
 }
 
+// Cache simples para evitar requisições duplicadas
+const productCache = new Map<string, { data: Product[], timestamp: number }>();
+const CACHE_DURATION = 30000; // 30 segundos
+
 export function useProducts(options: UseProductsOptions = {}) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProducts = useCallback(async (retryCount = 0) => {
+  // Memoizar a chave do cache baseada nas opções
+  const cacheKey = useMemo(() => {
+    return JSON.stringify(options);
+  }, [options.type, options.brand, options.category, options.location, options.maxPrice, options.userId]);
+
+  const fetchProducts = useCallback(async (retryCount = 0, skipCache = false) => {
     const maxRetries = 3;
-    const baseDelay = 1000; // 1 segundo
+    const baseDelay = 1000;
+
+    // Verificar cache primeiro
+    if (!skipCache) {
+      const cached = productCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        console.log('📦 Usando produtos do cache');
+        setProducts(cached.data);
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       setLoading(true);
@@ -73,7 +93,6 @@ export function useProducts(options: UseProductsOptions = {}) {
         query = query.lte('price', options.maxPrice);
       }
       if (options.userId) {
-        console.log('🔍 Filtrando produtos por userId:', options.userId);
         // @ts-expect-error - Supabase type issue
         query = query.eq('user_id', options.userId);
       }
@@ -82,12 +101,15 @@ export function useProducts(options: UseProductsOptions = {}) {
 
       if (queryError) throw queryError;
 
-      console.log('📦 Produtos encontrados:', data?.length || 0);
-      if (options.userId) {
-        console.log('✅ Produtos do usuário:', (data as any)?.map((p: any) => ({ title: p.title, user_id: p.user_id })));
-      }
+      const productsData = (data as any) || [];
+      
+      // Salvar no cache
+      productCache.set(cacheKey, {
+        data: productsData,
+        timestamp: Date.now()
+      });
 
-      setProducts((data as any) || []);
+      setProducts(productsData);
       setLoading(false);
       setError(null);
     } catch (err) {
@@ -109,17 +131,22 @@ export function useProducts(options: UseProductsOptions = {}) {
         );
         
         await new Promise(resolve => setTimeout(resolve, delay));
-        return fetchProducts(retryCount + 1);
+        return fetchProducts(retryCount + 1, skipCache);
       }
 
       setError(handleSupabaseError(err));
       setLoading(false);
     }
-  }, [options.type, options.brand, options.category, options.location, options.maxPrice, options.userId]);
+  }, [cacheKey, options.type, options.brand, options.category, options.location, options.maxPrice, options.userId]);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  return { products, loading, error, refetch: fetchProducts };
+  // Função para forçar atualização (sem cache)
+  const refetch = useCallback(() => {
+    return fetchProducts(0, true);
+  }, [fetchProducts]);
+
+  return { products, loading, error, refetch };
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { PrefetchLink } from '../hooks/usePrefetch';
 import { Bell, Menu, X, Settings, LogOut, ShoppingBag, User as UserIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
@@ -20,7 +21,7 @@ export default function Navbar() {
     });
 
     // Escutar mudanças de autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
     });
 
@@ -75,38 +76,38 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8 flex-1 justify-center">
-            <Link
+            <PrefetchLink
               to="/comprar"
               className={`text-gray-600 hover:text-green-600 transition border-b-2 pb-1 whitespace-nowrap ${
                 isActive('/comprar') ? 'border-green-600 text-green-600 font-medium' : 'border-transparent'
               }`}
             >
               Comprar
-            </Link>
-            <Link
+            </PrefetchLink>
+            <PrefetchLink
               to="/alugar"
               className={`text-gray-600 hover:text-green-600 transition border-b-2 pb-1 whitespace-nowrap ${
                 isActive('/alugar') ? 'border-green-600 text-green-600 font-medium' : 'border-transparent'
               }`}
             >
               Alugar
-            </Link>
-            <Link
+            </PrefetchLink>
+            <PrefetchLink
               to="/vender"
               className={`text-gray-600 hover:text-green-600 transition border-b-2 pb-1 whitespace-nowrap ${
                 isActive('/vender') ? 'border-green-600 text-green-600 font-medium' : 'border-transparent'
               }`}
             >
               Vender
-            </Link>
-            <Link
+            </PrefetchLink>
+            <PrefetchLink
               to="/como-funciona"
               className={`text-gray-600 hover:text-green-600 transition border-b-2 pb-1 whitespace-nowrap ${
                 isActive('/como-funciona') ? 'border-green-600 text-green-600 font-medium' : 'border-transparent'
               }`}
             >
               Como Funciona
-            </Link>
+            </PrefetchLink>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -203,7 +204,7 @@ export default function Navbar() {
           }`}
         >
           <div className="py-3 space-y-1 border-t border-gray-100">
-            <Link
+            <PrefetchLink
               to="/comprar"
               className={`block px-4 py-3 rounded-lg transition font-medium ${
                 isActive('/comprar')
@@ -212,8 +213,8 @@ export default function Navbar() {
               }`}
             >
               Comprar
-            </Link>
-            <Link
+            </PrefetchLink>
+            <PrefetchLink
               to="/alugar"
               className={`block px-4 py-3 rounded-lg transition font-medium ${
                 isActive('/alugar')
@@ -222,8 +223,8 @@ export default function Navbar() {
               }`}
             >
               Alugar
-            </Link>
-            <Link
+            </PrefetchLink>
+            <PrefetchLink
               to="/vender"
               className={`block px-4 py-3 rounded-lg transition font-medium ${
                 isActive('/vender')
@@ -232,8 +233,8 @@ export default function Navbar() {
               }`}
             >
               Vender
-            </Link>
-            <Link
+            </PrefetchLink>
+            <PrefetchLink
               to="/como-funciona"
               className={`block px-4 py-3 rounded-lg transition font-medium ${
                 isActive('/como-funciona')
@@ -242,7 +243,7 @@ export default function Navbar() {
               }`}
             >
               Como Funciona
-            </Link>
+            </PrefetchLink>
 
             {user ? (
               <>

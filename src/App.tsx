@@ -1,26 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { supabase, isAuthenticated } from './lib/supabase';
+import { usePrefetchRoutes } from './hooks/usePrefetch';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import Buy from './pages/Buy';
-import Rent from './pages/Rent';
-import Sell from './pages/Sell';
-import HowItWorks from './pages/HowItWorks';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Profile from './pages/Profile';
-import MyListings from './pages/MyListings';
-import ProductDetails from './pages/ProductDetails';
-import EditListing from './pages/EditListing';
+
+// Lazy loading para melhor performance
+const Home = lazy(() => import('./pages/Home'));
+const Buy = lazy(() => import('./pages/Buy'));
+const Rent = lazy(() => import('./pages/Rent'));
+const Sell = lazy(() => import('./pages/Sell'));
+const HowItWorks = lazy(() => import('./pages/HowItWorks'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Login = lazy(() => import('./pages/Login'));
+const Profile = lazy(() => import('./pages/Profile'));
+const MyListings = lazy(() => import('./pages/MyListings'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const EditListing = lazy(() => import('./pages/EditListing'));
+
+// Loading component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+  </div>
+);
 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
+
+  // Prefetch de rotas comuns
+  usePrefetchRoutes();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -80,20 +93,22 @@ export default function App() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
       <div className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/comprar" element={<Buy />} />
-          <Route path="/alugar" element={<Rent />} />
-          <Route path="/vender" element={<Sell />} />
-          <Route path="/como-funciona" element={<HowItWorks />} />
-          <Route path="/sobre" element={<About />} />
-          <Route path="/contato" element={<Contact />} />
-          <Route path="/entrar" element={<Login />} />
-          <Route path="/perfil" element={<Profile />} />
-          <Route path="/meus-anuncios" element={<MyListings />} />
-          <Route path="/produto/:id" element={<ProductDetails />} />
-          <Route path="/editar-anuncio/:id" element={<EditListing />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/comprar" element={<Buy />} />
+            <Route path="/alugar" element={<Rent />} />
+            <Route path="/vender" element={<Sell />} />
+            <Route path="/como-funciona" element={<HowItWorks />} />
+            <Route path="/sobre" element={<About />} />
+            <Route path="/contato" element={<Contact />} />
+            <Route path="/entrar" element={<Login />} />
+            <Route path="/perfil" element={<Profile />} />
+            <Route path="/meus-anuncios" element={<MyListings />} />
+            <Route path="/produto/:id" element={<ProductDetails />} />
+            <Route path="/editar-anuncio/:id" element={<EditListing />} />
+          </Routes>
+        </Suspense>
       </div>
       <Footer />
     </div>

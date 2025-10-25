@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   AlertCircle, 
@@ -50,6 +50,10 @@ interface ImageFile {
   preview: string;
   uploading: boolean;
 }
+
+// Cache para estados do IBGE (carrega apenas uma vez)
+let statesCache: Array<{ sigla: string; nome: string }> | null = null;
+const citiesCache = new Map<string, Array<{ nome: string }>>();
 
 export default function Sell() {
   const navigate = useNavigate();
@@ -118,12 +122,19 @@ export default function Sell() {
     checkAuth();
   }, [navigate]);
 
-  // Carregar estados da API do IBGE
+  // Carregar estados da API do IBGE (com cache)
   useEffect(() => {
     const fetchStates = async () => {
+      // Se já tem no cache, usar direto
+      if (statesCache) {
+        setStates(statesCache);
+        return;
+      }
+
       try {
         const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
         const data = await response.json();
+        statesCache = data; // Salvar no cache global
         setStates(data);
       } catch (err) {
         console.error('Erro ao carregar estados:', err);
@@ -131,51 +142,54 @@ export default function Sell() {
     };
 
     fetchStates();
+  }, []); // Dependências vazias - roda apenas uma vez
+
+  // Carregar cidades quando o estado for selecionado (com cache)
+  const loadCities = useCallback(async (stateCode: string) => {
+    // Verificar cache primeiro
+    if (citiesCache.has(stateCode)) {
+      setCities(citiesCache.get(stateCode)!);
+      return;
+    }
+
+    setLoadingCities(true);
+    try {
+      const response = await fetch(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateCode}/municipios?orderBy=nome`
+      );
+      const data = await response.json();
+      citiesCache.set(stateCode, data); // Salvar no cache
+      setCities(data);
+    } catch (err) {
+      console.error('Erro ao carregar cidades:', err);
+    } finally {
+      setLoadingCities(false);
+    }
   }, []);
 
-  // Carregar cidades quando o estado for selecionado
+  // Efeito otimizado para carregar cidades
   useEffect(() => {
     if (selectedState && !useProfileLocation) {
-      const fetchCities = async () => {
-        setLoadingCities(true);
-        try {
-          const response = await fetch(
-            `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedState}/municipios?orderBy=nome`
-          );
-          const data = await response.json();
-          setCities(data);
-        } catch (err) {
-          console.error('Erro ao carregar cidades:', err);
-        } finally {
-          setLoadingCities(false);
-        }
-      };
-
-      fetchCities();
+      loadCities(selectedState);
     }
-  }, [selectedState, useProfileLocation]);
+  }, [selectedState, useProfileLocation, loadCities]);
 
-  // Atualizar localização quando mudar a opção
+  // Atualizar localização quando mudar a opção (otimizado)
   useEffect(() => {
     if (useProfileLocation && profileLocation) {
       setFormData(prev => ({ ...prev, location: profileLocation }));
       setSelectedState('');
       setSelectedCity('');
+    } else if (!useProfileLocation && selectedCity && selectedState) {
+      const locationFormatted = `${selectedCity} - ${selectedState}`;
+      setFormData(prev => ({ ...prev, location: locationFormatted }));
     } else if (!useProfileLocation) {
       setFormData(prev => ({ ...prev, location: '' }));
     }
-  }, [useProfileLocation, profileLocation]);
-
-  // Atualizar localização quando cidade for selecionada
-  useEffect(() => {
-    if (selectedCity && selectedState && !useProfileLocation) {
-      const locationFormatted = `${selectedCity} - ${selectedState}`;
-      setFormData(prev => ({ ...prev, location: locationFormatted }));
-    }
-  }, [selectedCity, selectedState, useProfileLocation]);
+  }, [useProfileLocation, profileLocation, selectedCity, selectedState]);
 
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     if (name === 'price') {
@@ -221,7 +235,7 @@ export default function Sell() {
     }
 
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -376,23 +390,23 @@ export default function Sell() {
     e.target.value = '';
   };
 
-  const removeImage = (index: number) => {
+  const removeImage = useCallback((index: number) => {
     setImages(prev => {
       const newImages = [...prev];
       URL.revokeObjectURL(newImages[index].preview);
       newImages.splice(index, 1);
       return newImages;
     });
-  };
+  }, []);
 
-  const reorderImages = (fromIndex: number, toIndex: number) => {
+  const reorderImages = useCallback((fromIndex: number, toIndex: number) => {
     setImages(prev => {
       const newImages = [...prev];
       const [movedImage] = newImages.splice(fromIndex, 1);
       newImages.splice(toIndex, 0, movedImage);
       return newImages;
     });
-  };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
