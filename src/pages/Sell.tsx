@@ -995,23 +995,6 @@ export default function Sell() {
                     </div>
                   )}
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Descrição*
-                  </label>
-                  <div className="relative">
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      rows={5}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none resize-none"
-                      placeholder="Descreva detalhadamente o produto, condições, acessórios inclusos, etc."
-                      required
-                    />
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -1194,6 +1177,64 @@ export default function Sell() {
                       </div>
                     </>
                   )}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Descrição do Produto
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Descreva detalhadamente seu produto para atrair mais compradores
+                </p>
+              </div>
+
+              <div className="p-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Descrição Completa*
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows={6}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none resize-none"
+                      placeholder="Descreva detalhadamente o produto, condições gerais, histórico de manutenções, acessórios inclusos, motivo da venda, etc."
+                      required
+                    />
+                  </div>
+                  <div className="mt-3 bg-blue-50 rounded-lg p-4">
+                    <div className="flex gap-3">
+                      <Info className="text-blue-600 shrink-0" size={20} />
+                      <div>
+                        <h4 className="text-sm font-medium text-blue-900 mb-2">
+                          💡 Dicas para uma boa descrição
+                        </h4>
+                        <ul className="text-sm text-blue-700 space-y-1">
+                          <li className="flex items-start gap-2">
+                            <CheckCircle2 size={14} className="mt-0.5 shrink-0" />
+                            <span>Informe o estado geral e conservação do equipamento</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle2 size={14} className="mt-0.5 shrink-0" />
+                            <span>Mencione histórico de manutenções e revisões</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle2 size={14} className="mt-0.5 shrink-0" />
+                            <span>Liste acessórios e implementos inclusos</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle2 size={14} className="mt-0.5 shrink-0" />
+                            <span>Descreva detalhes importantes que não foram mencionados acima</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
