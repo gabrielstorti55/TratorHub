@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   ChevronRight
 } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 import { supabase } from '../lib/supabase';
 
 interface FormData {
@@ -220,7 +221,7 @@ export default function Sell() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
     if (files.length === 0) {
@@ -245,34 +246,47 @@ export default function Sell() {
     const validFiles: File[] = [];
     const errors: string[] = [];
     
-    console.log('🔍 Verificando cada arquivo:');
-    files.forEach((file, index) => {
+    console.log('🔍 Verificando e comprimindo cada arquivo:');
+    
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
       const fileSizeMB = file.size / 1024 / 1024;
       console.log(`\n  Arquivo ${index + 1}/${files.length}:`, {
         nome: file.name,
         tipo: file.type,
-        tamanho: `${fileSizeMB.toFixed(2)} MB`,
+        tamanhoOriginal: `${fileSizeMB.toFixed(2)} MB`,
         tamanhoByte: file.size
       });
 
-      // Aceitar qualquer tipo de imagem no mobile
+      // Aceitar qualquer tipo de imagem
       if (!file.type.startsWith('image/')) {
         console.error(`  ❌ REJEITADO: ${file.name} - não é uma imagem (tipo: ${file.type})`);
         errors.push(`"${file.name}" não é uma imagem válida`);
-        return;
+        continue;
       }
 
-      // Limite de 15MB por foto (aumentado para compatibilidade com celulares)
-      const maxSizeMB = 15;
-      if (file.size > maxSizeMB * 1024 * 1024) {
-        console.error(`  ❌ REJEITADO: ${file.name} - muito grande (${fileSizeMB.toFixed(2)} MB > ${maxSizeMB} MB)`);
-        errors.push(`"${file.name}" excede ${maxSizeMB}MB`);
-        return;
+      try {
+        // Comprimir imagem automaticamente
+        console.log(`  🗜️ Comprimindo ${file.name}...`);
+        
+        const options = {
+          maxSizeMB: 2, // Tamanho máximo de 2MB após compressão
+          maxWidthOrHeight: 1920, // Máximo 1920px (Full HD)
+          useWebWorker: true,
+          fileType: 'image/jpeg' // Converter tudo para JPEG (melhor compressão)
+        };
+        
+        const compressedFile = await imageCompression(file, options);
+        const compressedSizeMB = compressedFile.size / 1024 / 1024;
+        
+        console.log(`  ✅ Comprimido: ${fileSizeMB.toFixed(2)} MB → ${compressedSizeMB.toFixed(2)} MB (${((1 - compressedSizeMB / fileSizeMB) * 100).toFixed(0)}% menor)`);
+        
+        validFiles.push(compressedFile);
+      } catch (compressionError) {
+        console.error(`  ❌ Erro ao comprimir ${file.name}:`, compressionError);
+        errors.push(`Erro ao processar "${file.name}"`);
       }
-
-      console.log(`  ✅ VÁLIDO: ${file.name} (${fileSizeMB.toFixed(2)} MB)`);
-      validFiles.push(file);
-    });
+    }
     
     console.log(`\n📋 Resumo da validação:`);
     console.log(`  - Total selecionado: ${files.length}`);
