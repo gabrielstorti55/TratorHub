@@ -1,19 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Tractor, Facebook, Instagram, Linkedin, Phone, Mail, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Phone, Mail, MapPin } from 'lucide-react';
+import logo from '../assets/logo transparente.png';
 
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <Tractor className="text-white" size={32} />
-              <span className="text-xl font-bold text-white">AgroMachines</span>
+          <div className="flex flex-col">
+            <Link to="/" className="inline-block  -mt-7">
+              <img src={logo} alt="TratorHub" className="h-28 w-auto" />
             </Link>
-            <p className="text-sm">
-              Seu marketplace confiável para compra, venda e aluguel de máquinas e implementos agrícolas.
+            <p className="text-sm max-w-xs font-size">
+              Conectando produtores rurais com equipamentos agrícolas de forma simples e direta.
             </p>
           </div>
           
@@ -36,7 +36,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={16} />
-                <span>contato@agromachines.com.br</span>
+                <span>contato@tratorhub.com.br</span>
               </li>
               <li className="flex items-center gap-2">
                 <MapPin size={16} />
@@ -62,7 +62,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
-          <p>&copy; 2024 AgroMachines. Todos os direitos reservados.</p>
+          <p>&copy; 2025 TratorHub. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>

@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Tractor, Bell, Menu, X, Settings, FileText, LogOut, ShoppingBag, User as UserIcon } from 'lucide-react';
+import { Bell, Menu, X, Settings, LogOut, ShoppingBag, User as UserIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
+import logo from '../assets/logo transparente.png';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -68,8 +69,8 @@ export default function Navbar() {
             }}
             className="flex items-center gap-2 hover:opacity-80 transition flex-shrink-0"
           >
-            <Tractor className="text-green-600" size={32} />
-            <span className="text-xl font-bold text-gray-900 hidden sm:inline">AgroMachines</span>
+            <img src={logo} alt="TratorHub" className="h-14 sm:h-16 w-auto" />
+            <span className="text-xl font-bold text-gray-900 hidden sm:inline">TratorHub</span>
           </Link>
 
           {/* Desktop Menu */}

@@ -62,7 +62,7 @@ export default function HowItWorks() {
           <details className="bg-white rounded-lg shadow-md p-4">
             <summary className="font-semibold cursor-pointer">A plataforma cobra alguma taxa?</summary>
             <p className="mt-2 text-gray-600">
-              Não! A AgroMachines é gratuita tanto para anunciar quanto para buscar equipamentos. Conectamos pessoas sem cobrar comissões.
+              Não! O TratorHub é gratuito tanto para anunciar quanto para buscar equipamentos. Conectamos pessoas sem cobrar comissões.
             </p>
           </details>
 

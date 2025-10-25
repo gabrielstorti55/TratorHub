@@ -90,7 +90,7 @@ export default function Home() {
         </div>
         <div className="relative container mx-auto px-4 py-24 flex items-center justify-center">
           <div className="max-w-3xl text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-100">
               Encontre as Melhores Máquinas Agrícolas
             </h1>
             <p className="text-xl mb-8">

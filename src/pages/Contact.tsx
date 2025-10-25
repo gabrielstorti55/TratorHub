@@ -18,7 +18,7 @@ export default function Contact() {
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
             <Mail className="mx-auto text-green-600 mb-4" size={32} />
             <h3 className="text-lg font-semibold mb-2">E-mail</h3>
-            <p className="text-gray-600">contato@agromachines.com.br</p>
+            <p className="text-gray-600">contato@tratorhub.com.br</p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md text-center">

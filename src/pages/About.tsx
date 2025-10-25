@@ -9,7 +9,7 @@ export default function About() {
         
         <div className="prose max-w-none mb-12">
           <p className="text-lg text-gray-600 mb-6">
-            A AgroMachines nasceu da necessidade real de facilitar a conexão entre produtores rurais e fornecedores de equipamentos agrícolas. Somos uma plataforma em crescimento, focada em tornar mais acessível e transparente o processo de compra, venda e aluguel de máquinas.
+            O TratorHub nasceu da necessidade real de facilitar a conexão entre produtores rurais e fornecedores de equipamentos agrícolas. Somos uma plataforma em crescimento, focada em tornar mais acessível e transparente o processo de compra, venda e aluguel de máquinas.
           </p>
           <p className="text-lg text-gray-600 mb-6">
             Criada em 2025 por uma equipe apaixonada por tecnologia e agronegócio, nossa missão é simples: conectar quem precisa de equipamentos com quem pode fornecer, de forma prática e confiável.
