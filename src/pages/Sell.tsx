@@ -262,11 +262,18 @@ export default function Sell() {
 
     if (validFiles.length > 0) {
       console.log(`✅ ${validFiles.length} arquivo(s) válido(s)`);
-      validFiles.forEach(file => {
-        const preview = URL.createObjectURL(file);
-        console.log(`🖼️ Preview criado para ${file.name}`);
-        setImages(prev => [...prev, { file, preview, uploading: false }]);
-      });
+      
+      // Criar previews para todos os arquivos válidos
+      const newImages: ImageFile[] = validFiles.map(file => ({
+        file,
+        preview: URL.createObjectURL(file),
+        uploading: false
+      }));
+      
+      console.log(`🖼️ ${newImages.length} previews criados`);
+      
+      // Adicionar todas as imagens de uma vez
+      setImages(prev => [...prev, ...newImages]);
       setError(null);
     }
 
