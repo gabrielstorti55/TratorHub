@@ -563,7 +563,6 @@ export default function Sell() {
                       <input
                         type="file"
                         accept="image/*"
-                        capture="environment"
                         onChange={handleImageChange}
                         multiple
                         className="hidden"
