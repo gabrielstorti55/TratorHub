@@ -66,6 +66,8 @@ export default function Sell() {
   const [loadingCities, setLoadingCities] = useState(false);
   const [yearError, setYearError] = useState(false);
   const yearInputRef = useRef<HTMLInputElement>(null);
+  const [compressing, setCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState('');
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -233,12 +235,17 @@ export default function Sell() {
     console.log(`📸 ${files.length} arquivo(s) selecionado(s)`);
     console.log(`📊 Fotos já adicionadas: ${images.length}/10`);
     
+    setCompressing(true);
+    setCompressionProgress(`Processando ${files.length} foto(s)...`);
+    
     // Calcular quantas fotos ainda cabem
     const remainingSlots = 10 - images.length;
     console.log(`🎯 Slots disponíveis: ${remainingSlots}`);
     
     if (remainingSlots === 0) {
       setError('Você já atingiu o limite de 10 fotos.');
+      setCompressing(false);
+      setCompressionProgress('');
       e.target.value = '';
       return;
     }
@@ -251,6 +258,9 @@ export default function Sell() {
     for (let index = 0; index < files.length; index++) {
       const file = files[index];
       const fileSizeMB = file.size / 1024 / 1024;
+      
+      setCompressionProgress(`Comprimindo foto ${index + 1} de ${files.length}...`);
+      
       console.log(`\n  Arquivo ${index + 1}/${files.length}:`, {
         nome: file.name,
         tipo: file.type,
@@ -359,6 +369,9 @@ export default function Sell() {
       }
     }
 
+    setCompressing(false);
+    setCompressionProgress('');
+    
     // Limpar o input para permitir selecionar o mesmo arquivo novamente
     e.target.value = '';
   };
@@ -600,6 +613,23 @@ export default function Sell() {
               </div>
 
               <div className="p-6">
+                {/* Indicador de compressão */}
+                {compressing && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="animate-spin text-blue-600" size={24} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-900">
+                          {compressionProgress}
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Aguarde, otimizando suas fotos...
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                   {images.map((image, index) => (
                     <div 
