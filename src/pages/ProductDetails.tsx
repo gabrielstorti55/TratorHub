@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Phone, ArrowLeft, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Calendar, Phone, ArrowLeft, AlertTriangle, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Product } from '../hooks/useProducts';
 import type { Database } from '../lib/database.types';
@@ -119,6 +119,22 @@ export default function ProductDetails() {
 
   const goToImage = (index: number) => {
     setCurrentImageIndex(index);
+  };
+
+  // Função para criar mensagem do WhatsApp
+  const getWhatsAppLink = () => {
+    if (!sellerInfo?.phone || !product) return '#';
+    
+    // Remover formatação do telefone
+    const phoneNumber = sellerInfo.phone.replace(/\D/g, '');
+    
+    // Criar mensagem personalizada
+    const message = `Olá! Vi o anúncio do(a) *${product.title}* no TratorHub e tenho interesse em ${product.type === 'Venda' ? 'comprar' : 'alugar'}.\n\nPode me passar mais informações?\n\nLink: ${window.location.href}`;
+    
+    // Codificar mensagem para URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    return `https://wa.me/55${phoneNumber}?text=${encodedMessage}`;
   };
 
   if (loading) {
@@ -440,14 +456,25 @@ export default function ProductDetails() {
                     </div>
 
                     {/* CTA Principal */}
-                    <a
-                      href={`tel:${sellerInfo.phone}`}
-                      className="group relative flex items-center justify-center gap-2 w-full py-3.5 px-5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <Phone size={20} className="relative z-10" />
-                      <span className="relative z-10">Ligar Agora</span>
-                    </a>
+                    <div className="space-y-3">
+                      <a
+                        href={getWhatsAppLink()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative flex items-center justify-center gap-2 w-full py-3.5 px-5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                      >
+                        <MessageCircle size={20} />
+                        <span>Chamar no WhatsApp</span>
+                      </a>
+
+                      <a
+                        href={`tel:${sellerInfo.phone}`}
+                        className="group relative flex items-center justify-center gap-2 w-full py-3.5 px-5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+                      >
+                        <Phone size={20} />
+                        <span>Ligar Agora</span>
+                      </a>
+                    </div>
 
                     {/* Telefone */}
                     <div className="pt-4 border-t border-gray-100">

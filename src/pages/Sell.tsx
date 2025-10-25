@@ -223,27 +223,55 @@ export default function Sell() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
+    if (files.length === 0) {
+      console.log('⚠️ Nenhum arquivo selecionado');
+      return;
+    }
+
+    console.log(`📸 ${files.length} arquivo(s) selecionado(s)`);
+    
     if (images.length + files.length > 10) {
       setError('Você pode adicionar no máximo 10 fotos.');
       return;
     }
 
-    files.forEach(file => {
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        setError('Por favor, selecione apenas imagens nos formatos JPG, PNG ou WebP.');
+    const validFiles: File[] = [];
+    
+    files.forEach((file, index) => {
+      console.log(`Verificando arquivo ${index + 1}:`, {
+        nome: file.name,
+        tipo: file.type,
+        tamanho: `${(file.size / 1024 / 1024).toFixed(2)} MB`
+      });
+
+      // Aceitar qualquer tipo de imagem no mobile
+      if (!file.type.startsWith('image/')) {
+        console.error(`❌ Arquivo ${file.name} não é uma imagem`);
+        setError(`O arquivo "${file.name}" não é uma imagem válida.`);
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        setError('Cada imagem deve ter no máximo 5MB.');
+        console.error(`❌ Arquivo ${file.name} é muito grande`);
+        setError(`A imagem "${file.name}" deve ter no máximo 5MB.`);
         return;
       }
 
-      const preview = URL.createObjectURL(file);
-      setImages(prev => [...prev, { file, preview, uploading: false }]);
+      validFiles.push(file);
     });
 
-    setError(null);
+    if (validFiles.length > 0) {
+      console.log(`✅ ${validFiles.length} arquivo(s) válido(s)`);
+      validFiles.forEach(file => {
+        const preview = URL.createObjectURL(file);
+        console.log(`🖼️ Preview criado para ${file.name}`);
+        setImages(prev => [...prev, { file, preview, uploading: false }]);
+      });
+      setError(null);
+    }
+
+    // Limpar o input para permitir selecionar o mesmo arquivo novamente
+    e.target.value = '';
   };
 
   const removeImage = (index: number) => {
@@ -534,7 +562,8 @@ export default function Sell() {
                       </span>
                       <input
                         type="file"
-                        accept="image/jpeg,image/png,image/webp"
+                        accept="image/*"
+                        capture="environment"
                         onChange={handleImageChange}
                         multiple
                         className="hidden"
