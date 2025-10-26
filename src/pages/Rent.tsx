@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, SlidersHorizontal, X, ChevronRight } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
@@ -137,8 +137,7 @@ export default function Rent() {
 
   const { products, loading, error } = useProducts({ 
     type: 'Aluguel',
-    category: filters.category,
-    period: filters.period
+    category: filters.category
   });
 
   // Filtrar produtos com base na busca e filtros

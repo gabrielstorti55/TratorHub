@@ -271,7 +271,7 @@ export default function Login() {
             const { data: userExists } = await supabase
               .from('users')
               .select('email')
-              .eq('email', formData.email)
+              .eq('email', formData.email as any)
               .single();
 
             if (!userExists) {

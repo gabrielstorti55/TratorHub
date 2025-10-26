@@ -64,19 +64,6 @@ export default function Home() {
     }
   };
 
-  // Navigate to category with filter
-  const navigateToCategory = (category: string) => {
-    setSelectedCategory(category);
-    const params = new URLSearchParams();
-    params.append('categoria', category);
-    window.history.pushState({}, '', `/?${params.toString()}`);
-
-    // Rolar até os resultados
-    if (resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
     <div>
       {/* Hero Section with Search */}

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, SlidersHorizontal, X, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
@@ -216,23 +216,6 @@ export default function Buy() {
 
   // Contar filtros ativos
   const activeFiltersCount = Object.values(filters).filter(v => v && v !== 0 && v !== new Date().getFullYear()).length + (searchTerm ? 1 : 0);
-
-  // Handle search submit
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    
-    if (searchTerm) params.append('busca', searchTerm);
-    if (filters.category) params.append('categoria', filters.category);
-    
-    // Atualizar URL
-    navigate(`/comprar?${params.toString()}`, { replace: true });
-
-    // Rolar até os resultados
-    if (resultsRef.current) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">
