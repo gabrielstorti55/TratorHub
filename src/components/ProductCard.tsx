@@ -40,20 +40,22 @@ const ProductCard = memo(function ProductCard({
       className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition group cursor-pointer"
       onClick={() => navigate(`/produto/${id}`)}
     >
-      <div className="relative">
+      <div className="relative aspect-video bg-gray-200">
         <img
           src={optimizedImage}
           srcSet={imageSrcSet}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           alt={title}
           loading="lazy"
-          className="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+          width="400"
+          height="225"
+          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
         />
-        <div className="absolute top-3 right-3">
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+        <div className="absolute top-3 right-3 z-10">
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow-md ${
             type === 'Venda'
               ? 'bg-green-600 text-white'
-              : 'bg-gray-900 text-white'
+              : 'bg-blue-600 text-white'
           }`}>
             {type}
           </span>

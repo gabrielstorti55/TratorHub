@@ -187,6 +187,8 @@ export default function ProductDetails() {
                 <img
                   src={productImages[currentImageIndex]?.image_url}
                   alt={`${product.title} - Foto ${currentImageIndex + 1}`}
+                  width="800"
+                  height="600"
                   className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                 />
                 
@@ -233,6 +235,9 @@ export default function ProductDetails() {
                         <img
                           src={image.image_url}
                           alt={`Miniatura ${index + 1}`}
+                          width="80"
+                          height="80"
+                          loading="lazy"
                           className="w-full h-full object-cover"
                         />
                       </button>

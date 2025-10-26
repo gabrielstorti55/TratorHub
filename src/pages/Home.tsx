@@ -153,9 +153,24 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Carregando produtos...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="bg-white rounded-lg overflow-hidden animate-pulse">
+                <div className="aspect-video bg-gray-200"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="flex justify-between items-end">
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      <div className="h-6 bg-gray-200 rounded w-24"></div>
+                    </div>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-8">
