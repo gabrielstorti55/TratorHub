@@ -7,9 +7,12 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{[key: string]: boolean}>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,12 +25,48 @@ export default function Login() {
   });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate((location.state as any)?.from || '/');
+    // Verificar se acabou de vir do link de recuperação
+    const hasPasswordRecovery = localStorage.getItem('password_recovery_sent');
+    
+    // Listener para eventos de autenticação
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      // Se tiver marcação de recovery e houver sessão, mostrar tela de redefinição
+      if (hasPasswordRecovery && session && (event === 'INITIAL_SESSION' || event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN')) {
+        localStorage.removeItem('password_recovery_sent');
+        setIsResettingPassword(true);
+        setIsForgotPassword(false);
+        setIsRegistering(false);
       }
     });
-  }, [navigate, location]);
+
+    // Verificar URL parameters
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const searchParams = new URLSearchParams(window.location.search);
+    const type = hashParams.get('type') || searchParams.get('type');
+    const accessToken = hashParams.get('access_token');
+    
+    // Se tiver type=recovery na URL
+    if (type === 'recovery' || (accessToken && window.location.hash.includes('type=recovery'))) {
+      localStorage.removeItem('password_recovery_sent');
+      setIsResettingPassword(true);
+      setIsForgotPassword(false);
+      setIsRegistering(false);
+      return;
+    }
+
+    // Apenas redireciona se NÃO for recovery e NÃO estiver redefinindo senha
+    if (!isResettingPassword && !hasPasswordRecovery) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          navigate((location.state as any)?.from || '/');
+        }
+      });
+    }
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [navigate, location, isResettingPassword]);
 
   const validateForm = () => {
     if (!formData.email || !formData.password) {
@@ -103,10 +142,116 @@ export default function Login() {
     setFormData(prev => ({ ...prev, [name]: value }));
     setError(null);
     setSuccess(null);
+    // Limpar erro do campo quando usuário digitar
+    setFieldErrors(prev => ({ ...prev, [name]: false }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Se for redefinir senha (veio do link do email)
+    if (isResettingPassword) {
+      if (!formData.password || !formData.confirmPassword) {
+        setError('Por favor, preencha a nova senha e confirme');
+        return;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        setError('As senhas não coincidem');
+        return;
+      }
+
+      if (formData.password.length < 8) {
+        setError('A senha deve ter pelo menos 8 caracteres');
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      try {
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: formData.password
+        });
+
+        if (updateError) {
+          console.error('Erro ao atualizar senha:', updateError);
+          setError(`Erro ao redefinir senha: ${updateError.message}`);
+          return;
+        }
+
+        setSuccess('Senha redefinida com sucesso! Faça login com sua nova senha.');
+        
+        // Fazer logout da sessão de recuperação
+        await supabase.auth.signOut();
+        
+        // Limpar URL hash
+        window.location.hash = '';
+        
+        setTimeout(() => {
+          setIsResettingPassword(false);
+          setFormData({
+            email: '',
+            password: '',
+            confirmPassword: '',
+            full_name: '',
+            cpf_cnpj: '',
+            phone: '',
+          });
+        }, 2000);
+      } catch (err) {
+        console.error('Erro:', err);
+        setError('Erro ao processar sua solicitação. Por favor, tente novamente.');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Se for recuperação de senha
+    if (isForgotPassword) {
+      if (!formData.email) {
+        setError('Por favor, insira seu email');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError('Por favor, insira um email válido');
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      try {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(formData.email, {
+          redirectTo: `${window.location.origin}/entrar`,
+        });
+
+        if (resetError) {
+          console.error('Erro ao enviar email:', resetError);
+          setError('Erro ao enviar email de recuperação. Tente novamente.');
+          return;
+        }
+
+        // Marcar que enviamos email de recuperação
+        localStorage.setItem('password_recovery_sent', 'true');
+
+        setSuccess('Email de recuperação enviado! Verifique sua caixa de entrada.');
+        setFormData({ ...formData, email: '' });
+      } catch (err) {
+        console.error('Erro:', err);
+        setError('Erro ao processar sua solicitação. Por favor, tente novamente.');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Validação normal para login/cadastro
     if (!validateForm()) return;
 
     setLoading(true);
@@ -122,9 +267,23 @@ export default function Login() {
 
         if (signInError) {
           if (signInError.message.includes('Invalid login credentials')) {
-            setError('Email ou senha incorretos. Se você acabou de criar sua conta, verifique seu email para confirmar o cadastro.');
+            // Verificar se o email existe na tabela users para dar uma mensagem mais específica
+            const { data: userExists } = await supabase
+              .from('users')
+              .select('email')
+              .eq('email', formData.email)
+              .single();
+
+            if (!userExists) {
+              setError('Este email não está cadastrado. Clique em "Criar conta" para se registrar.');
+              setFieldErrors({ email: true });
+            } else {
+              setError('Email ou senha incorretos. Verifique seus dados e tente novamente.');
+              setFieldErrors({ email: true, password: true });
+            }
           } else if (signInError.message.includes('Email not confirmed')) {
             setError('Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.');
+            setFieldErrors({ email: true });
           } else {
             console.error('Erro no login:', signInError);
             setError(`Erro ao fazer login: ${signInError.message}`);
@@ -212,10 +371,14 @@ export default function Login() {
 
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900">
-              {isRegistering ? 'Criar uma conta' : 'Bem-vindo de volta'}
+              {isResettingPassword ? 'Nova Senha' : isForgotPassword ? 'Recuperar Senha' : isRegistering ? 'Criar uma conta' : 'Bem-vindo de volta'}
             </h2>
             <p className="mt-2 text-gray-600">
-              {isRegistering
+              {isResettingPassword
+                ? 'Digite sua nova senha abaixo'
+                : isForgotPassword
+                ? 'Digite seu email para receber o link de recuperação'
+                : isRegistering
                 ? 'Preencha seus dados para se cadastrar'
                 : 'Entre para acessar sua conta'}
             </p>
@@ -236,7 +399,7 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {isRegistering && (
+            {isRegistering && !isForgotPassword && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -248,7 +411,11 @@ export default function Login() {
                       name="full_name"
                       value={formData.full_name}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                      className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 outline-none ${
+                        fieldErrors.full_name 
+                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                          : 'border-gray-200 focus:ring-green-500 focus:border-green-500'
+                      }`}
                       placeholder="Seu nome completo"
                     />
                     <User className="absolute left-3 top-2.5 text-gray-400" size={20} />
@@ -266,7 +433,11 @@ export default function Login() {
                       required
                       value={formData.cpf_cnpj}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                      className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 outline-none ${
+                        fieldErrors.cpf_cnpj 
+                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                          : 'border-gray-200 focus:ring-green-500 focus:border-green-500'
+                      }`}
                       placeholder="000.000.000-00"
                       maxLength={18}
                     />
@@ -285,7 +456,11 @@ export default function Login() {
                       required
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                      className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 outline-none ${
+                        fieldErrors.phone 
+                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                          : 'border-gray-200 focus:ring-green-500 focus:border-green-500'
+                      }`}
                       placeholder="(00) 00000-0000"
                       maxLength={15}
                     />
@@ -295,51 +470,63 @@ export default function Login() {
               </>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                E-mail
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                  placeholder="seu@email.com"
-                />
-                <Mail className="absolute left-3 top-2.5 text-gray-400" size={20} />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Senha
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                  placeholder="••••••••"
-                />
-                <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-            </div>
-
-            {isRegistering && (
+            {!isResettingPassword && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirmar Senha
+                  E-mail
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 outline-none ${
+                      fieldErrors.email 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-200 focus:ring-green-500 focus:border-green-500'
+                    }`}
+                    placeholder="seu@email.com"
+                  />
+                  <Mail className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                </div>
+              </div>
+            )}
+
+            {(!isForgotPassword || isResettingPassword) && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {isResettingPassword ? 'Nova Senha' : 'Senha'}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:ring-2 outline-none ${
+                      fieldErrors.password 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-200 focus:ring-green-500 focus:border-green-500'
+                    }`}
+                    placeholder="••••••••"
+                  />
+                  <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {(isRegistering || isResettingPassword) && !isForgotPassword && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirmar {isResettingPassword ? 'Nova ' : ''}Senha
                 </label>
                 <div className="relative">
                   <input
@@ -347,7 +534,11 @@ export default function Login() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-12 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                    className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:ring-2 outline-none ${
+                      fieldErrors.confirmPassword 
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-200 focus:ring-green-500 focus:border-green-500'
+                    }`}
                     placeholder="••••••••"
                   />
                   <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
@@ -362,7 +553,7 @@ export default function Login() {
               </div>
             )}
 
-            {!isRegistering && (
+            {!isRegistering && !isForgotPassword && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input
@@ -375,6 +566,12 @@ export default function Login() {
                 </div>
                 <button
                   type="button"
+                  onClick={() => {
+                    setIsForgotPassword(true);
+                    setIsRegistering(false);
+                    setError(null);
+                    setSuccess(null);
+                  }}
                   className="text-sm text-green-600 hover:text-green-500 transition-colors"
                 >
                   Esqueceu a senha?
@@ -394,7 +591,17 @@ export default function Login() {
                 </>
               ) : (
                 <>
-                  {isRegistering ? (
+                  {isResettingPassword ? (
+                    <>
+                      <Lock size={20} />
+                      <span>Redefinir Senha</span>
+                    </>
+                  ) : isForgotPassword ? (
+                    <>
+                      <Mail size={20} />
+                      <span>Enviar Link de Recuperação</span>
+                    </>
+                  ) : isRegistering ? (
                     <>
                       <UserPlus size={20} />
                       <span>Criar Conta</span>
@@ -409,36 +616,44 @@ export default function Login() {
               )}
             </button>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">ou</span>
-              </div>
-            </div>
+            {!isResettingPassword && (
+              <>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">ou</span>
+                  </div>
+                </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setIsRegistering(!isRegistering);
-                setError(null);
-                setSuccess(null);
-                setShowPassword(false);
-                setShowConfirmPassword(false);
-                setFormData({
-                  email: '',
-                  password: '',
-                  confirmPassword: '',
-                  full_name: '',
-                  cpf_cnpj: '',
-                  phone: '',
-                });
-              }}
-              className="w-full py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-base font-medium"
-            >
-              {isRegistering ? 'Já tem uma conta? Entre agora' : 'Não tem uma conta? Cadastre-se'}
-            </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isForgotPassword) {
+                      setIsForgotPassword(false);
+                    } else {
+                      setIsRegistering(!isRegistering);
+                    }
+                    setError(null);
+                    setSuccess(null);
+                    setShowPassword(false);
+                    setShowConfirmPassword(false);
+                    setFormData({
+                      email: '',
+                      password: '',
+                      confirmPassword: '',
+                      full_name: '',
+                      cpf_cnpj: '',
+                      phone: '',
+                    });
+                  }}
+                  className="w-full py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-base font-medium"
+                >
+                  {isForgotPassword ? 'Voltar para o login' : isRegistering ? 'Já tem uma conta? Entre agora' : 'Não tem uma conta? Cadastre-se'}
+                </button>
+              </>
+            )}
           </form>
         </div>
       </div>
