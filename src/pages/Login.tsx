@@ -352,9 +352,12 @@ export default function Login() {
     <div className="min-h-[calc(100vh-4rem)] flex">
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="max-w-md w-full">
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <Tractor className="text-green-600" size={40} />
-            <span className="text-2xl font-bold text-gray-900">AgroMachines</span>
+          <div className="flex items-center justify-center mb-8">
+            <img 
+              src="/logo-transparente.png" 
+              alt="TratorHub" 
+              className="h-32 w-auto"
+            />
           </div>
 
           <div className="text-center mb-8">
