@@ -267,20 +267,8 @@ export default function Login() {
 
         if (signInError) {
           if (signInError.message.includes('Invalid login credentials')) {
-            // Verificar se o email existe na tabela users para dar uma mensagem mais específica
-            const { data: userExists } = await supabase
-              .from('users')
-              .select('email')
-              .eq('email', formData.email as any)
-              .single();
-
-            if (!userExists) {
-              setError('Este email não está cadastrado. Clique em "Criar conta" para se registrar.');
-              setFieldErrors({ email: true });
-            } else {
-              setError('Email ou senha incorretos. Verifique seus dados e tente novamente.');
-              setFieldErrors({ email: true, password: true });
-            }
+            setError('Email ou senha incorretos. Verifique seus dados e tente novamente.');
+            setFieldErrors({ email: true, password: true });
           } else if (signInError.message.includes('Email not confirmed')) {
             setError('Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.');
             setFieldErrors({ email: true });
