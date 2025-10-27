@@ -51,7 +51,7 @@ export default function Footer() {
               <a href="#" className="hover:text-green-400 transition">
                 <Facebook size={24} />
               </a>
-              <a href="#" className="hover:text-green-400 transition">
+              <a href="https://www.instagram.com/tratorhub" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition">
                 <Instagram size={24} />
               </a>
               <a href="#" className="hover:text-green-400 transition">
