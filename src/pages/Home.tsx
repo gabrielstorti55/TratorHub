@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
 
@@ -9,6 +9,7 @@ export default function Home() {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { products, loading, error } = useProducts({
     // Só buscar produtos se houver busca ou categoria selecionada
     ...(searchTerm || selectedCategory ? {
@@ -18,6 +19,36 @@ export default function Home() {
   
   // Referência para a seção de resultados
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Imagens do carrossel
+  const carouselImages = [
+    '/maos-que-estao-escolhendo-graos-de-cafe-cafeeiro.jpg',
+    '/martin-derksen-PF5tnMB4phE-unsplash.jpg',
+    '/projeto-cafe-gato-mourisco-gckFDCVTVy4-unsplash.jpg',
+  ];
+
+  // Auto-play do carrossel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000); // Muda a cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === 0 ? carouselImages.length - 1 : prevIndex - 1
+    );
+  };
 
   // Get search params from URL
   useEffect(() => {
@@ -66,15 +97,52 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero Section with Search */}
+      {/* Hero Section with Search and Carousel */}
       <div className="relative bg-gray-900 text-white">
+        {/* Carrossel de Imagens */}
         <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=2070&q=80"
-            alt="Agricultura"
-            className="w-full h-full object-cover opacity-40"
-          />
+          {carouselImages.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Agricultura ${index + 1}`}
+              className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
+                index === currentImageIndex ? 'opacity-60' : 'opacity-0'
+              }`}
+            />
+          ))}
         </div>
+
+        {/* Botões de navegação */}
+        <button
+          onClick={prevImage}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors"
+          aria-label="Imagem anterior"
+        >
+          <ChevronLeft size={32} />
+        </button>
+        <button
+          onClick={nextImage}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors"
+          aria-label="Próxima imagem"
+        >
+          <ChevronRight size={32} />
+        </button>
+
+        {/* Indicadores */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+          {carouselImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImageIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50'
+              }`}
+              aria-label={`Ir para imagem ${index + 1}`}
+            />
+          ))}
+        </div>
+
         <div className="relative container mx-auto px-4 py-24 flex items-center justify-center">
           <div className="max-w-3xl text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-100">
@@ -113,6 +181,52 @@ export default function Home() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Seção de Patrocinadores/Banners */}
+      <div className="bg-gray-50 py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm text-gray-500 uppercase tracking-wide">Patrocinadores</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Banner 1 - Exemplo */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="block">
+                <div className="aspect-[16/9] bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <p className="text-2xl font-bold text-green-600 mb-2">Seu Banner Aqui</p>
+                    <p className="text-sm text-gray-600">Anuncie sua marca</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+            
+            {/* Banner 2 - Exemplo */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="block">
+                <div className="aspect-[16/9] bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <p className="text-2xl font-bold text-blue-600 mb-2">Espaço Disponível</p>
+                    <p className="text-sm text-gray-600">Entre em contato</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+            
+            {/* Banner 3 - Exemplo */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="block">
+                <div className="aspect-[16/9] bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <p className="text-2xl font-bold text-orange-600 mb-2">Divulgue Aqui</p>
+                    <p className="text-sm text-gray-600">Alcance milhares</p>
+                  </div>
+                </div>
+              </a>
+            </div>
           </div>
         </div>
       </div>
