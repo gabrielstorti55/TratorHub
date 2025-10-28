@@ -1,9 +1,18 @@
 import React from 'react';
 import { Users, Target, Shield, Award } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function About() {
   return (
     <div className="container mx-auto px-4 py-12">
+      {/* SEO Meta Tags */}
+      <SEO 
+        title="Sobre Nós - Conheça o TratorHub"
+        description="Conheça a história do TratorHub, a plataforma que conecta produtores rurais e fornecedores de equipamentos agrícolas. Nossa missão, valores e compromisso com o agronegócio brasileiro."
+        keywords="sobre TratorHub, quem somos, plataforma agrícola, história TratorHub, missão e valores"
+        canonical="https://www.tratorhub.com.br/sobre"
+      />
+      
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">Sobre Nós</h1>
         
@@ -71,7 +80,7 @@ export default function About() {
               <div className="text-gray-300">Negociações Realizadas</div>
             </div>
           </div>
-          <p className="text-center text-gray-400 mt-6 text-sm">
+          <p className="text-center text-gray-600 mt-6 text-sm">
             * Números atualizados em outubro de 2025
           </p>
         </div> */}

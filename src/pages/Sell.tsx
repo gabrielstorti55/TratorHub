@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 import { supabase } from '../lib/supabase';
+import SEO from '../components/SEO';
 
 interface FormData {
   title: string;
@@ -592,6 +593,14 @@ export default function Sell() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* SEO Meta Tags */}
+      <SEO 
+        title="Vender Máquinas e Equipamentos Agrícolas"
+        description="Anuncie gratuitamente suas máquinas, tratores, colheitadeiras e implementos agrícolas. Alcance milhares de compradores em todo Brasil. Crie seu anúncio agora!"
+        keywords="vender trator, anunciar máquinas agrícolas, vender colheitadeira, anúncio de implementos, vender equipamentos agrícolas"
+        canonical="https://www.tratorhub.com.br/vender"
+      />
+      
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -652,8 +661,11 @@ export default function Sell() {
                     >
                       <img
                         src={image.preview}
-                        alt={`Preview ${index + 1}`}
+                        alt={`Preview da foto ${index + 1} do produto`}
                         className="w-full h-full object-cover transition duration-200 group-hover:scale-105"
+                        width="200"
+                        height="200"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200">
                         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
@@ -666,16 +678,18 @@ export default function Sell() {
                               type="button"
                               onClick={() => reorderImages(index, index - 1)}
                               className="p-1.5 bg-white text-gray-900 rounded-full hover:bg-gray-100 transition"
+                              aria-label={`Mover foto ${index + 1} para esquerda`}
                             >
-                              <GripHorizontal size={14} />
+                              <GripHorizontal size={14} aria-hidden="true" />
                             </button>
                           )}
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
                             className="p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition"
+                            aria-label={`Remover foto ${index + 1}`}
                           >
-                            <X size={14} />
+                            <X size={14} aria-hidden="true" />
                           </button>
                         </div>
                       </div>
@@ -689,7 +703,7 @@ export default function Sell() {
 
                   {images.length < 10 && (
                     <label className="aspect-square bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition group">
-                      <ImagePlus className="text-gray-400 group-hover:text-green-500 transition" size={32} />
+                      <ImagePlus className="text-gray-600 group-hover:text-green-500 transition" size={32} aria-hidden="true" />
                       <span className="mt-2 text-sm text-gray-500 group-hover:text-green-600 transition">
                         {images.length === 0 ? 'Adicionar fotos' : 'Mais fotos'}
                       </span>
@@ -699,6 +713,7 @@ export default function Sell() {
                         onChange={handleImageChange}
                         multiple
                         className="hidden"
+                        aria-label={`Adicionar fotos do produto (${images.length}/10)`}
                       />
                     </label>
                   )}
@@ -744,11 +759,12 @@ export default function Sell() {
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="sell-title" className="block text-sm font-medium text-gray-700 mb-1">
                       Título do Anúncio*
                     </label>
                     <div className="relative">
                       <input
+                        id="sell-title"
                         type="text"
                         name="title"
                         value={formData.title}
@@ -756,17 +772,19 @@ export default function Sell() {
                         className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                         placeholder="Ex: Trator John Deere 5075E"
                         required
+                        aria-required="true"
                       />
-                      <Tag className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <Tag className="absolute left-3 top-2.5 text-gray-600" size={20} aria-hidden="true" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="sell-price" className="block text-sm font-medium text-gray-700 mb-1">
                       Preço*
                     </label>
                     <div className="relative">
                       <input
+                        id="sell-price"
                         type="text"
                         name="price"
                         value={formData.price}
@@ -774,18 +792,20 @@ export default function Sell() {
                         className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                         placeholder="0,00"
                         required
+                        aria-required="true"
                       />
-                      <DollarSign className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <DollarSign className="absolute left-3 top-2.5 text-gray-600" size={20} aria-hidden="true" />
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="sell-type" className="block text-sm font-medium text-gray-700 mb-1">
                       Tipo de Anúncio*
                     </label>
                     <select
+                      id="sell-type"
                       name="type"
                       value={formData.type}
                       onChange={handleInputChange}
@@ -852,7 +872,7 @@ export default function Sell() {
                         placeholder="Ex: John Deere"
                         required
                       />
-                      <Building2 className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <Building2 className="absolute left-3 top-2.5 text-gray-600" size={20} />
                     </div>
                   </div>
 
@@ -870,7 +890,7 @@ export default function Sell() {
                         placeholder="Ex: 5075E"
                         required
                       />
-                      <Tag className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <Tag className="absolute left-3 top-2.5 text-gray-600" size={20} />
                     </div>
                   </div>
 
@@ -891,7 +911,7 @@ export default function Sell() {
                         placeholder="Ex: 2020"
                         required
                       />
-                      <Calendar className={`absolute left-3 top-2.5 ${yearError ? 'text-red-500' : 'text-gray-400'}`} size={20} />
+                      <Calendar className={`absolute left-3 top-2.5 ${yearError ? 'text-red-500' : 'text-gray-600'}`} size={20} />
                       {yearError && (
                         <AlertCircle className="absolute right-3 top-2.5 text-red-500" size={20} />
                       )}
@@ -942,7 +962,7 @@ export default function Sell() {
                           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed outline-none"
                           placeholder="Carregando localização..."
                         />
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        <MapPin className="absolute left-3 top-2.5 text-gray-600" size={20} />
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
                         📍 Usando localização do perfil: <span className="font-medium">{profileLocation}</span>
@@ -970,8 +990,8 @@ export default function Sell() {
                             </option>
                           ))}
                         </select>
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
-                        <ChevronRight className="absolute right-3 top-2.5 text-gray-400 pointer-events-none rotate-90" size={20} />
+                        <MapPin className="absolute left-3 top-2.5 text-gray-600 pointer-events-none" size={20} />
+                        <ChevronRight className="absolute right-3 top-2.5 text-gray-600 pointer-events-none rotate-90" size={20} />
                       </div>
 
                       {/* Select de Cidade */}
@@ -993,8 +1013,8 @@ export default function Sell() {
                               </option>
                             ))}
                           </select>
-                          <Building2 className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
-                          <ChevronRight className="absolute right-3 top-2.5 text-gray-400 pointer-events-none rotate-90" size={20} />
+                          <Building2 className="absolute left-3 top-2.5 text-gray-600 pointer-events-none" size={20} />
+                          <ChevronRight className="absolute right-3 top-2.5 text-gray-600 pointer-events-none rotate-90" size={20} />
                         </div>
                       )}
 
@@ -1041,7 +1061,7 @@ export default function Sell() {
                             placeholder="Ex: 1500"
                             required
                           />
-                          <Clock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Clock className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                       <div>
@@ -1059,7 +1079,7 @@ export default function Sell() {
                             placeholder="Ex: 75"
                             required
                           />
-                          <Gauge className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Gauge className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                     </>
@@ -1096,7 +1116,7 @@ export default function Sell() {
                             <option value="Enfardadeira">Enfardadeira</option>
                             <option value="Outro">Outro</option>
                           </select>
-                          <Tool className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Tool className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                       <div>
@@ -1115,7 +1135,7 @@ export default function Sell() {
                             placeholder="Ex: 3.5"
                             required
                           />
-                          <Ruler className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Ruler className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                     </>
@@ -1150,7 +1170,7 @@ export default function Sell() {
                             <option value="Correias">Correias</option>
                             <option value="Outro">Outro</option>
                           </select>
-                          <Settings className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Settings className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                       <div>
@@ -1170,7 +1190,7 @@ export default function Sell() {
                             <option value="Usada">Usada</option>
                             <option value="Recondicionada">Recondicionada</option>
                           </select>
-                          <Tag className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Tag className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                       <div className="md:col-span-2">
@@ -1186,7 +1206,7 @@ export default function Sell() {
                             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                             placeholder="Ex: ABC123XYZ"
                           />
-                          <FileText className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <FileText className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                     </>

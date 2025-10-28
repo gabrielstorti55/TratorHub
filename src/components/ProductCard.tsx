@@ -39,13 +39,15 @@ const ProductCard = memo(function ProductCard({
     <div 
       className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition group cursor-pointer"
       onClick={() => navigate(`/produto/${id}`)}
+      role="article"
+      aria-label={`${title} - ${type} por R$ ${price} em ${location}`}
     >
       <div className="relative aspect-video bg-gray-200">
         <img
           src={optimizedImage}
           srcSet={imageSrcSet}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          alt={title}
+          alt={`${title} - Máquina agrícola ${type === 'Venda' ? 'à venda' : 'para aluguel'} em ${location}`}
           loading="lazy"
           width="400"
           height="225"
@@ -67,11 +69,11 @@ const ProductCard = memo(function ProductCard({
         </h3>
         <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
           <div className="flex items-center gap-1">
-            <MapPin size={16} />
+            <MapPin size={16} aria-hidden="true" />
             <span>{location}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Calendar size={16} />
+            <Calendar size={16} aria-hidden="true" />
             <span>{year}</span>
           </div>
         </div>
@@ -84,7 +86,14 @@ const ProductCard = memo(function ProductCard({
               R$ {price}
             </p>
           </div>
-          <button className="text-green-600 font-semibold text-sm hover:text-green-500 transition">
+          <button 
+            className="text-green-600 font-semibold text-sm hover:text-green-500 transition"
+            aria-label={`Ver detalhes de ${title}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/produto/${id}`);
+            }}
+          >
             Ver detalhes
           </button>
         </div>

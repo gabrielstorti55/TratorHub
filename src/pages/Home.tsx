@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
+import SEO from '../components/SEO';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -97,6 +98,14 @@ export default function Home() {
 
   return (
     <div>
+      {/* SEO Meta Tags */}
+      <SEO 
+        title="Comprar, Vender e Alugar Máquinas Agrícolas"
+        description="TratorHub: A maior plataforma de compra, venda e aluguel de máquinas e implementos agrícolas do Brasil. Encontre tratores, colheitadeiras e equipamentos com os melhores preços."
+        keywords="comprar trator, vender máquinas agrícolas, alugar colheitadeira, implementos agrícolas, equipamentos agrícolas usados, tratores novos, máquinas agrícolas Brasil"
+        canonical="https://www.tratorhub.com.br/"
+      />
+      
       {/* Hero Section with Search and Carousel */}
       <div className="relative bg-gray-900 text-white">
         {/* Carrossel de Imagens */}
@@ -105,10 +114,13 @@ export default function Home() {
             <img
               key={index}
               src={image}
-              alt={`Agricultura ${index + 1}`}
+              alt={`Imagem de agricultura brasileira mostrando plantações e maquinário agrícola - foto ${index + 1}`}
               className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
                 index === currentImageIndex ? 'opacity-60' : 'opacity-0'
               }`}
+              width="1920"
+              height="1080"
+              loading={index === 0 ? 'eager' : 'lazy'}
             />
           ))}
         </div>
@@ -117,16 +129,16 @@ export default function Home() {
         <button
           onClick={prevImage}
           className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors"
-          aria-label="Imagem anterior"
+          aria-label="Imagem anterior do carrossel"
         >
-          <ChevronLeft size={32} />
+          <ChevronLeft size={32} aria-hidden="true" />
         </button>
         <button
           onClick={nextImage}
           className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors"
-          aria-label="Próxima imagem"
+          aria-label="Próxima imagem do carrossel"
         >
-          <ChevronRight size={32} />
+          <ChevronRight size={32} aria-hidden="true" />
         </button>
 
         {/* Indicadores */}
@@ -138,7 +150,8 @@ export default function Home() {
               className={`w-3 h-3 rounded-full transition-all ${
                 index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50'
               }`}
-              aria-label={`Ir para imagem ${index + 1}`}
+              aria-label={`Ir para imagem ${index + 1} do carrossel`}
+              aria-current={index === currentImageIndex ? 'true' : 'false'}
             />
           ))}
         </div>
@@ -154,29 +167,44 @@ export default function Home() {
 
             <form onSubmit={handleSearch} className="bg-white rounded-lg p-4 shadow-lg">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input
-                  type="text"
-                  placeholder="Buscar máquinas..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                />
-                <select 
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-                >
-                  <option value="">Todas as Categorias</option>
-                  <option value="Tratores">Tratores</option>
-                  <option value="Colheitadeiras">Colheitadeiras</option>
-                  <option value="Implementos">Implementos</option>
-                  <option value="Peças e Componentes">Peças e Componentes</option>
-                </select>
+                <div>
+                  <label htmlFor="search-input" className="sr-only">
+                    Buscar máquinas agrícolas
+                  </label>
+                  <input
+                    id="search-input"
+                    type="text"
+                    placeholder="Buscar máquinas..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                    aria-label="Buscar máquinas agrícolas"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="category-select" className="sr-only">
+                    Selecionar categoria
+                  </label>
+                  <select 
+                    id="category-select"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                    aria-label="Filtrar por categoria"
+                  >
+                    <option value="">Todas as Categorias</option>
+                    <option value="Tratores">Tratores</option>
+                    <option value="Colheitadeiras">Colheitadeiras</option>
+                    <option value="Implementos">Implementos</option>
+                    <option value="Peças e Componentes">Peças e Componentes</option>
+                  </select>
+                </div>
                 <button 
                   type="submit"
                   className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition flex items-center justify-center gap-2"
+                  aria-label="Buscar produtos"
                 >
-                  <Search size={20} />
+                  <Search size={20} aria-hidden="true" />
                   Buscar
                 </button>
               </div>

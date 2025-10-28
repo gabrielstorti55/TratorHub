@@ -60,27 +60,33 @@ export default function Navbar() {
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="w-full px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
-          <Link
-            to="/"
-            onClick={(e) => {
-              if (location.pathname === '/') {
-                e.preventDefault();
-                window.location.href = '/';
-              }
-            }}
-            className="flex items-center gap-2 hover:opacity-80 transition flex-shrink-0"
-          >
-            <img src={logo} alt="TratorHub" className="h-14 sm:h-16 w-auto" />
-            <span className="text-xl font-bold text-gray-900 hidden sm:inline">TratorHub</span>
-          </Link>
-
-          {/* Desktop Menu */}
+            <Link
+              to="/"
+              onClick={(e) => {
+                if (location.pathname === '/') {
+                  e.preventDefault();
+                  window.location.href = '/';
+                }
+              }}
+              className="flex items-center gap-2 hover:opacity-80 transition flex-shrink-0"
+              aria-label="Página inicial do TratorHub"
+            >
+              <img 
+                src={logo} 
+                alt="TratorHub - Plataforma de máquinas agrícolas" 
+                className="h-14 sm:h-16 w-auto"
+                width="64"
+                height="64"
+              />
+              <span className="text-xl font-bold text-gray-900 hidden sm:inline">TratorHub</span>
+            </Link>          {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8 flex-1 justify-center">
             <PrefetchLink
               to="/comprar"
               className={`text-gray-600 hover:text-green-600 transition border-b-2 pb-1 whitespace-nowrap ${
                 isActive('/comprar') ? 'border-green-600 text-green-600 font-medium' : 'border-transparent'
               }`}
+              aria-current={isActive('/comprar') ? 'page' : undefined}
             >
               Comprar
             </PrefetchLink>
@@ -89,6 +95,7 @@ export default function Navbar() {
               className={`text-gray-600 hover:text-green-600 transition border-b-2 pb-1 whitespace-nowrap ${
                 isActive('/alugar') ? 'border-green-600 text-green-600 font-medium' : 'border-transparent'
               }`}
+              aria-current={isActive('/alugar') ? 'page' : undefined}
             >
               Alugar
             </PrefetchLink>
@@ -97,6 +104,7 @@ export default function Navbar() {
               className={`text-gray-600 hover:text-green-600 transition border-b-2 pb-1 whitespace-nowrap ${
                 isActive('/vender') ? 'border-green-600 text-green-600 font-medium' : 'border-transparent'
               }`}
+              aria-current={isActive('/vender') ? 'page' : undefined}
             >
               Vender
             </PrefetchLink>
@@ -105,6 +113,7 @@ export default function Navbar() {
               className={`text-gray-600 hover:text-green-600 transition border-b-2 pb-1 whitespace-nowrap ${
                 isActive('/como-funciona') ? 'border-green-600 text-green-600 font-medium' : 'border-transparent'
               }`}
+              aria-current={isActive('/como-funciona') ? 'page' : undefined}
             >
               Como Funciona
             </PrefetchLink>
@@ -126,8 +135,11 @@ export default function Navbar() {
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="flex items-center gap-2 bg-gray-900 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-gray-800 transition text-sm lg:text-base"
+                  aria-label="Menu do usuário"
+                  aria-expanded={isMenuOpen}
+                  aria-haspopup="true"
                 >
-                  <UserIcon size={20} />
+                  <UserIcon size={20} aria-hidden="true" />
                   <span className="hidden lg:inline">Minha Conta</span>
                 </button>
 
@@ -178,8 +190,9 @@ export default function Navbar() {
               <button
                 onClick={() => navigate('/entrar')}
                 className="hidden sm:flex items-center gap-2 bg-gray-900 text-white px-3 lg:px-4 py-2 rounded-lg hover:bg-gray-800 transition text-sm lg:text-base"
+                aria-label="Fazer login"
               >
-                <UserIcon size={20} />
+                <UserIcon size={20} aria-hidden="true" />
                 <span className="hidden lg:inline">Entrar</span>
               </button>
             )}
@@ -188,15 +201,18 @@ export default function Navbar() {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 text-gray-600 hover:text-gray-900 transition"
-              aria-label="Menu"
+              aria-label="Menu de navegação"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
             >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         <div
+          id="mobile-menu"
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             isMobileMenuOpen
               ? 'max-h-[600px] opacity-100'
@@ -211,6 +227,7 @@ export default function Navbar() {
                   ? 'bg-green-50 text-green-600'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
+              aria-current={isActive('/comprar') ? 'page' : undefined}
             >
               Comprar
             </PrefetchLink>
@@ -221,6 +238,7 @@ export default function Navbar() {
                   ? 'bg-green-50 text-green-600'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
+              aria-current={isActive('/alugar') ? 'page' : undefined}
             >
               Alugar
             </PrefetchLink>
@@ -231,6 +249,7 @@ export default function Navbar() {
                   ? 'bg-green-50 text-green-600'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
+              aria-current={isActive('/vender') ? 'page' : undefined}
             >
               Vender
             </PrefetchLink>
@@ -241,6 +260,7 @@ export default function Navbar() {
                   ? 'bg-green-50 text-green-600'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
+              aria-current={isActive('/como-funciona') ? 'page' : undefined}
             >
               Como Funciona
             </PrefetchLink>
@@ -255,33 +275,37 @@ export default function Navbar() {
                   <Link
                     to="/perfil"
                     className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition"
+                    aria-label="Ir para meu perfil"
                   >
-                    <Settings size={20} />
+                    <Settings size={20} aria-hidden="true" />
                     <span className="font-medium">Meu Perfil</span>
                   </Link>
                   <Link
                     to="/meus-anuncios"
                     className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition"
+                    aria-label="Ver meus anúncios"
                   >
-                    <ShoppingBag size={20} />
+                    <ShoppingBag size={20} aria-hidden="true" />
                     <span className="font-medium">Meus Anúncios</span>
                   </Link>
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-3 w-full px-4 py-3 text-left text-red-600 hover:bg-red-50 rounded-lg transition mt-2"
+                    aria-label="Sair da conta"
                   >
-                    <LogOut size={20} />
+                    <LogOut size={20} aria-hidden="true" />
                     <span className="font-medium">Sair</span>
                   </button>
                 </div>
               </>
             ) : (
-              <div className="border-t border-gray-100 pt-2 mt-2">
+                <div className="border-t border-gray-100 pt-2 mt-2">
                 <button
                   onClick={() => navigate('/entrar')}
                   className="flex items-center gap-3 w-full px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-medium"
+                  aria-label="Fazer login"
                 >
-                  <UserIcon size={20} />
+                  <UserIcon size={20} aria-hidden="true" />
                   <span>Entrar</span>
                 </button>
               </div>

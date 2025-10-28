@@ -525,7 +525,7 @@ export default function Profile() {
                         className="h-20 w-20 rounded-full object-cover"
                       />
                     ) : (
-                      <User className="text-gray-400" size={32} />
+                      <User className="text-gray-600" size={32} />
                     )}
                   </div>
                   <button 
@@ -611,7 +611,7 @@ export default function Profile() {
                           className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                           placeholder="Seu nome completo"
                         />
-                        <User className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        <User className="absolute left-3 top-2.5 text-gray-600" size={20} />
                       </div>
                     </div>
 
@@ -630,7 +630,7 @@ export default function Profile() {
                           placeholder="000.000.000-00"
                           maxLength={18}
                         />
-                        <FileText className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        <FileText className="absolute left-3 top-2.5 text-gray-600" size={20} />
                       </div>
                     </div>
 
@@ -649,7 +649,7 @@ export default function Profile() {
                           placeholder="(00) 00000-0000"
                           maxLength={15}
                         />
-                        <Phone className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        <Phone className="absolute left-3 top-2.5 text-gray-600" size={20} />
                       </div>
                     </div>
 
@@ -719,7 +719,7 @@ export default function Profile() {
                           ) : cepError ? (
                             <AlertCircle className="absolute left-3 top-2.5 text-red-500" size={20} />
                           ) : (
-                            <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                            <MapPin className="absolute left-3 top-2.5 text-gray-600" size={20} />
                           )}
                         </div>
                         {cepError && (
@@ -752,7 +752,7 @@ export default function Profile() {
                           }
                           disabled={formData.location_type === 'urban' && loadingCep}
                         />
-                        <Home className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        <Home className="absolute left-3 top-2.5 text-gray-600" size={20} />
                       </div>
                     </div>
 
@@ -772,7 +772,7 @@ export default function Profile() {
                             placeholder="Seu bairro"
                             disabled={loadingCep}
                           />
-                          <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <MapPin className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                     )}
@@ -804,8 +804,8 @@ export default function Profile() {
                             </option>
                           ))}
                         </select>
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
-                        <ChevronRight className="absolute right-3 top-2.5 text-gray-400 pointer-events-none rotate-90" size={20} />
+                        <MapPin className="absolute left-3 top-2.5 text-gray-600 pointer-events-none" size={20} />
+                        <ChevronRight className="absolute right-3 top-2.5 text-gray-600 pointer-events-none rotate-90" size={20} />
                       </div>
                       {formData.location_type === 'rural' && (
                         <p className="text-xs text-gray-500 mt-1">
@@ -857,7 +857,7 @@ export default function Profile() {
                           <option value="SE">Sergipe</option>
                           <option value="TO">Tocantins</option>
                         </select>
-                        <MapPin className="absolute left-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
+                        <MapPin className="absolute left-3 top-2.5 text-gray-600 pointer-events-none" size={20} />
                       </div>
                       {manuallyEditedAddress && formData.location_type === 'urban' && (
                         <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
@@ -880,7 +880,7 @@ export default function Profile() {
                           className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                           placeholder="Nome da sua empresa"
                         />
-                        <Building2 className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                        <Building2 className="absolute left-3 top-2.5 text-gray-600" size={20} />
                       </div>
                     </div>
 
@@ -996,7 +996,7 @@ export default function Profile() {
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <ShoppingBag className="mx-auto text-gray-400 mb-2" size={32} />
+                      <ShoppingBag className="mx-auto text-gray-600 mb-2" size={32} />
                       <p className="text-gray-600">
                         Você ainda não tem nenhum anúncio
                       </p>
@@ -1019,7 +1019,7 @@ export default function Profile() {
                   </h2>
 
                   <div className="text-center py-8">
-                    <Star className="mx-auto text-gray-400 mb-2" size={32} />
+                    <Star className="mx-auto text-gray-600 mb-2" size={32} />
                     <p className="text-gray-600">
                       Você ainda não tem nenhum favorito
                     </p>
@@ -1036,7 +1036,7 @@ export default function Profile() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-4">
-                        <Settings className="text-gray-400" size={24} />
+                        <Settings className="text-gray-600" size={24} />
                         <div>
                           <h3 className="font-medium text-gray-900">
                             Notificações
@@ -1046,7 +1046,7 @@ export default function Profile() {
                           </p>
                         </div>
                       </div>
-                      <ChevronRight className="text-gray-400" size={20} />
+                      <ChevronRight className="text-gray-600" size={20} />
                     </div>
 
                     <button

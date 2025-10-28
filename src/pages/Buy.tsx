@@ -3,6 +3,7 @@ import { SlidersHorizontal, X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
+import SEO from '../components/SEO';
 
 interface State {
   id: number;
@@ -219,6 +220,14 @@ export default function Buy() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* SEO Meta Tags */}
+      <SEO 
+        title="Comprar Máquinas e Equipamentos Agrícolas"
+        description="Encontre os melhores tratores, colheitadeiras e implementos agrícolas novos e usados para comprar. Preços competitivos e equipamentos de qualidade em todo Brasil."
+        keywords="comprar trator, máquinas agrícolas à venda, tratores usados, colheitadeiras novas, implementos agrícolas, equipamentos agrícolas Brasil"
+        canonical="https://www.tratorhub.com.br/comprar"
+      />
+      
       <div className="mb-8">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-900">
           {filters.category ? `${filters.category} à Venda` : 'Equipamentos à Venda'}
@@ -256,26 +265,29 @@ export default function Buy() {
                   <button
                     onClick={clearFilters}
                     className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                    aria-label="Limpar todos os filtros"
                   >
-                    <X size={16} />
+                    <X size={16} aria-hidden="true" />
                     Limpar
                   </button>
                 )}
                 <button
                   onClick={() => setShowFilters(false)}
                   className="md:hidden text-gray-500 hover:text-gray-700 p-1"
+                  aria-label="Fechar painel de filtros"
                 >
-                  <X size={24} />
+                  <X size={24} aria-hidden="true" />
                 </button>
               </div>
             </div>
 
             {/* Search */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="buy-search-input" className="block text-sm font-medium text-gray-700 mb-2">
                 Buscar
               </label>
               <input
+                id="buy-search-input"
                 type="text"
                 placeholder="Nome, marca, modelo..."
                 value={searchTerm}
@@ -286,10 +298,11 @@ export default function Buy() {
 
             {/* Category */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="buy-category-select" className="block text-sm font-medium text-gray-700 mb-2">
                 Categoria
               </label>
               <select
+                id="buy-category-select"
                 value={filters.category}
                 onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
@@ -304,10 +317,11 @@ export default function Buy() {
             {/* Brand */}
             {uniqueBrands.length > 0 && (
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="buy-brand-select" className="block text-sm font-medium text-gray-700 mb-2">
                   Marca
                 </label>
                 <select
+                  id="buy-brand-select"
                   value={filters.brand}
                   onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
@@ -350,18 +364,22 @@ export default function Buy() {
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <input
+                  id="buy-min-year"
                   type="number"
                   placeholder="De"
                   value={filters.minYear || ''}
                   onChange={(e) => setFilters(prev => ({ ...prev, minYear: Number(e.target.value) || 0 }))}
                   className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                  aria-label="Ano mínimo"
                 />
                 <input
+                  id="buy-max-year"
                   type="number"
                   placeholder="Até"
                   value={filters.maxYear || ''}
                   onChange={(e) => setFilters(prev => ({ ...prev, maxYear: Number(e.target.value) || new Date().getFullYear() }))}
                   className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                  aria-label="Ano máximo"
                 />
               </div>
             </div>
@@ -369,10 +387,11 @@ export default function Buy() {
             {/* Hours (for Tractors/Harvesters) */}
             {(filters.category === 'Tratores' || filters.category === 'Colheitadeiras' || filters.category === '') && (
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="buy-max-hours" className="block text-sm font-medium text-gray-700 mb-2">
                   Horas de Uso (máx.)
                 </label>
                 <input
+                  id="buy-max-hours"
                   type="number"
                   placeholder="Ex: 5000"
                   value={filters.maxHours || ''}
@@ -437,8 +456,10 @@ export default function Buy() {
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-md hover:bg-green-700 transition whitespace-nowrap"
+                  aria-label="Abrir filtros de pesquisa"
+                  aria-expanded={showFilters}
                 >
-                  <SlidersHorizontal size={18} />
+                  <SlidersHorizontal size={18} aria-hidden="true" />
                   Filtros {activeFiltersCount > 0 && `(${activeFiltersCount})`}
                 </button>
                 <div className="text-sm text-gray-600 text-right">
@@ -446,8 +467,9 @@ export default function Buy() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-700 whitespace-nowrap">Ordenar:</label>
+                <label htmlFor="buy-sort-mobile" className="text-sm text-gray-700 whitespace-nowrap">Ordenar:</label>
                 <select
+                  id="buy-sort-mobile"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
@@ -468,8 +490,9 @@ export default function Buy() {
                 {sortedProducts.length} {sortedProducts.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-700">Ordenar por:</label>
+                <label htmlFor="buy-sort-select" className="text-sm text-gray-700">Ordenar por:</label>
                 <select
+                  id="buy-sort-select"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"

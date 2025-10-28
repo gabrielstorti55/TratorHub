@@ -540,7 +540,7 @@ export default function EditListing() {
 
                   {images.length < 10 && (
                     <label className="aspect-square bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition group">
-                      <ImagePlus className="text-gray-400 group-hover:text-green-500 transition" size={32} />
+                      <ImagePlus className="text-gray-600 group-hover:text-green-500 transition" size={32} />
                       <span className="mt-2 text-sm text-gray-500 group-hover:text-green-600 transition">
                         Mais fotos
                       </span>
@@ -609,7 +609,7 @@ export default function EditListing() {
                         placeholder="Ex: Trator John Deere 5075E"
                         required
                       />
-                      <Tag className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <Tag className="absolute left-3 top-2.5 text-gray-600" size={20} />
                     </div>
                   </div>
 
@@ -627,7 +627,7 @@ export default function EditListing() {
                         placeholder="0,00"
                         required
                       />
-                      <DollarSign className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <DollarSign className="absolute left-3 top-2.5 text-gray-600" size={20} />
                     </div>
                   </div>
                 </div>
@@ -704,7 +704,7 @@ export default function EditListing() {
                         placeholder="Ex: John Deere"
                         required
                       />
-                      <Building2 className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <Building2 className="absolute left-3 top-2.5 text-gray-600" size={20} />
                     </div>
                   </div>
 
@@ -722,7 +722,7 @@ export default function EditListing() {
                         placeholder="Ex: 5075E"
                         required
                       />
-                      <Tag className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                      <Tag className="absolute left-3 top-2.5 text-gray-600" size={20} />
                     </div>
                   </div>
 
@@ -743,7 +743,7 @@ export default function EditListing() {
                         placeholder="Ex: 2020"
                         required
                       />
-                      <Calendar className={`absolute left-3 top-2.5 ${yearError ? 'text-red-500' : 'text-gray-400'}`} size={20} />
+                      <Calendar className={`absolute left-3 top-2.5 ${yearError ? 'text-red-500' : 'text-gray-600'}`} size={20} />
                       {yearError && (
                         <AlertCircle className="absolute right-3 top-2.5 text-red-500" size={20} />
                       )}
@@ -770,7 +770,7 @@ export default function EditListing() {
                       placeholder="Ex: São Paulo, SP"
                       required
                     />
-                    <MapPin className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                    <MapPin className="absolute left-3 top-2.5 text-gray-600" size={20} />
                   </div>
                 </div>
 
@@ -823,7 +823,7 @@ export default function EditListing() {
                             placeholder="Ex: 1500"
                             required
                           />
-                          <Clock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Clock className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                       <div>
@@ -841,7 +841,7 @@ export default function EditListing() {
                             placeholder="Ex: 75"
                             required
                           />
-                          <Gauge className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Gauge className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                     </>
@@ -878,7 +878,7 @@ export default function EditListing() {
                             <option value="Enfardadeira">Enfardadeira</option>
                             <option value="Outro">Outro</option>
                           </select>
-                          <Tool className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Tool className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                       <div>
@@ -897,7 +897,7 @@ export default function EditListing() {
                             placeholder="Ex: 3.5"
                             required
                           />
-                          <Ruler className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Ruler className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                     </>
@@ -932,7 +932,7 @@ export default function EditListing() {
                             <option value="Correias">Correias</option>
                             <option value="Outro">Outro</option>
                           </select>
-                          <Settings className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Settings className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                       <div>
@@ -952,7 +952,7 @@ export default function EditListing() {
                             <option value="Usada">Usada</option>
                             <option value="Recondicionada">Recondicionada</option>
                           </select>
-                          <Tag className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <Tag className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                       <div className="md:col-span-2">
@@ -968,7 +968,7 @@ export default function EditListing() {
                             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                             placeholder="Ex: ABC123XYZ"
                           />
-                          <FileText className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                          <FileText className="absolute left-3 top-2.5 text-gray-600" size={20} />
                         </div>
                       </div>
                     </>

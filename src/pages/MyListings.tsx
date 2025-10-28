@@ -74,8 +74,9 @@ export default function MyListings() {
         <button
           onClick={() => navigate('/vender')}
           className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 transition"
+          aria-label="Criar novo anúncio"
         >
-          <Plus size={20} />
+          <Plus size={20} aria-hidden="true" />
           Novo Anúncio
         </button>
       </div>
@@ -156,17 +157,17 @@ export default function MyListings() {
                       <button
                         onClick={() => navigate(`/editar-anuncio/${product.id}`)}
                         className="text-gray-600 hover:text-gray-900"
-                        title="Editar"
+                        aria-label={`Editar anúncio ${product.title}`}
                       >
-                        <Pencil size={18} />
+                        <Pencil size={18} aria-hidden="true" />
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
                         disabled={loading}
                         className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                        title="Excluir"
+                        aria-label={`Excluir anúncio ${product.title}`}
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={18} aria-hidden="true" />
                       </button>
                     </div>
                   </td>
@@ -186,8 +187,9 @@ export default function MyListings() {
           <button
             onClick={() => navigate('/vender')}
             className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-500 transition"
+            aria-label="Criar primeiro anúncio"
           >
-            <Plus size={20} />
+            <Plus size={20} aria-hidden="true" />
             Criar Primeiro Anúncio
           </button>
         </div>

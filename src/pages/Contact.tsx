@@ -1,9 +1,18 @@
 import React from 'react';
 import { Phone, Mail, MapPin } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function Contact() {
   return (
     <div className="container mx-auto px-4 py-12">
+      {/* SEO Meta Tags */}
+      <SEO 
+        title="Contato - Fale Conosco"
+        description="Entre em contato com o TratorHub. Tire suas dúvidas, envie sugestões ou solicite suporte. Estamos prontos para ajudar você a encontrar as melhores soluções em máquinas agrícolas."
+        keywords="contato TratorHub, fale conosco, suporte TratorHub, atendimento, dúvidas"
+        canonical="https://www.tratorhub.com.br/contato"
+      />
+      
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">Contato</h1>
         

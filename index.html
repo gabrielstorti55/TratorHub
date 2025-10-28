@@ -1,18 +1,65 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- Preconnect para otimizar carregamento de fontes -->
+    <!-- Meta Tags SEO Básicas -->
+    <meta name="description" content="TratorHub: Plataforma líder para comprar, vender e alugar máquinas e implementos agrícolas no Brasil. Tratores, colheitadeiras e equipamentos com segurança e os melhores preços." />
+    <meta name="keywords" content="máquinas agrícolas, tratores, colheitadeiras, implementos, comprar trator, alugar equipamentos, venda de máquinas agrícolas" />
+    <meta name="author" content="TratorHub" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://www.tratorhub.com.br/" />
+    
+    <!-- Preconnect para otimizar carregamento de fontes e recursos -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://gxfhiqhpwjknwqlefhzz.supabase.co" />
+    <link rel="dns-prefetch" href="https://vercel.live" />
     
     <!-- Fonte Poppins com display=swap para evitar FOIT e reduzir CLS -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="TratorHub - Conectando Você aos Melhores Equipamentos Agrícolas" />
+    <meta property="og:description" content="Compre, venda ou alugue máquinas e implementos agrícolas de forma simples e segura. A maior plataforma do Brasil." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.tratorhub.com.br/" />
+    <meta property="og:image" content="https://www.tratorhub.com.br/logo.png" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="TratorHub" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TratorHub - Máquinas e Implementos Agrícolas" />
+    <meta name="twitter:description" content="Compre, venda ou alugue equipamentos agrícolas no Brasil" />
+    <meta name="twitter:image" content="https://www.tratorhub.com.br/logo.png" />
+    
+    <!-- Tema e Mobile -->
+    <meta name="theme-color" content="#16a34a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="TratorHub" />
+    
     <title>TratorHub - Conectando Você aos Melhores Equipamentos Agrícolas</title>
+    
+    <!-- Schema.org JSON-LD para Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "TratorHub",
+      "url": "https://www.tratorhub.com.br",
+      "description": "Plataforma de compra, venda e aluguel de máquinas e implementos agrícolas",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.tratorhub.com.br/?busca={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

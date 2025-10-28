@@ -409,7 +409,7 @@ export default function Login() {
                       }`}
                       placeholder="Seu nome completo"
                     />
-                    <User className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                    <User className="absolute left-3 top-2.5 text-gray-600" size={20} />
                   </div>
                 </div>
 
@@ -432,7 +432,7 @@ export default function Login() {
                       placeholder="000.000.000-00"
                       maxLength={18}
                     />
-                    <FileText className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                    <FileText className="absolute left-3 top-2.5 text-gray-600" size={20} />
                   </div>
                 </div>
 
@@ -455,7 +455,7 @@ export default function Login() {
                       placeholder="(00) 00000-0000"
                       maxLength={15}
                     />
-                    <Phone className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                    <Phone className="absolute left-3 top-2.5 text-gray-600" size={20} />
                   </div>
                 </div>
               </>
@@ -479,7 +479,7 @@ export default function Login() {
                     }`}
                     placeholder="seu@email.com"
                   />
-                  <Mail className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                  <Mail className="absolute left-3 top-2.5 text-gray-600" size={20} />
                 </div>
               </div>
             )}
@@ -502,11 +502,11 @@ export default function Login() {
                     }`}
                     placeholder="••••••••"
                   />
-                  <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                  <Lock className="absolute left-3 top-2.5 text-gray-600" size={20} />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-2.5 text-gray-600 hover:text-gray-600 transition-colors"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -532,11 +532,11 @@ export default function Login() {
                     }`}
                     placeholder="••••••••"
                   />
-                  <Lock className="absolute left-3 top-2.5 text-gray-400" size={20} />
+                  <Lock className="absolute left-3 top-2.5 text-gray-600" size={20} />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-2.5 text-gray-600 hover:text-gray-600 transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>

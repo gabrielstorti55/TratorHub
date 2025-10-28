@@ -10,7 +10,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="flex flex-col">
             <Link to="/" className="inline-block  -mt-7">
-              <img src={logo} alt="TratorHub" className="h-28 w-auto" />
+              <img 
+                src={logo} 
+                alt="TratorHub - Conectando produtores rurais" 
+                className="h-28 w-auto"
+                width="112"
+                height="112"
+                loading="lazy"
+              />
             </Link>
             <p className="text-sm max-w-xs font-size">
               Conectando produtores rurais com equipamentos agrícolas de forma simples e direta.
@@ -48,14 +55,14 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4">Redes Sociais</h3>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-green-400 transition">
-                <Facebook size={24} />
+              <a href="#" className="hover:text-green-400 transition" aria-label="Facebook do TratorHub">
+                <Facebook size={24} aria-hidden="true" />
               </a>
-              <a href="https://www.instagram.com/tratorhub" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition">
-                <Instagram size={24} />
+              <a href="https://www.instagram.com/tratorhub" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition" aria-label="Instagram do TratorHub">
+                <Instagram size={24} aria-hidden="true" />
               </a>
-              <a href="#" className="hover:text-green-400 transition">
-                <Linkedin size={24} />
+              <a href="#" className="hover:text-green-400 transition" aria-label="LinkedIn do TratorHub">
+                <Linkedin size={24} aria-hidden="true" />
               </a>
             </div>
           </div>

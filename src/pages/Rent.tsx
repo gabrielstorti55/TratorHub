@@ -3,6 +3,7 @@ import { SlidersHorizontal, X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
+import SEO from '../components/SEO';
 
 interface State {
   id: number;
@@ -226,6 +227,14 @@ export default function Rent() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* SEO Meta Tags */}
+      <SEO 
+        title="Alugar Equipamentos e Máquinas Agrícolas"
+        description="Alugue tratores, colheitadeiras e implementos agrícolas por dia, semana, mês ou safra. Soluções flexíveis de aluguel de equipamentos agrícolas para seu negócio."
+        keywords="alugar trator, aluguel de máquinas agrícolas, alugar colheitadeira, aluguel de implementos, equipamentos agrícolas para alugar"
+        canonical="https://www.tratorhub.com.br/alugar"
+      />
+      
       <div className="mb-8">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-900">Alugar Equipamentos</h1>
       </div>
@@ -261,26 +270,29 @@ export default function Rent() {
                   <button
                     onClick={clearFilters}
                     className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                    aria-label="Limpar todos os filtros"
                   >
-                    <X size={16} />
+                    <X size={16} aria-hidden="true" />
                     Limpar
                   </button>
                 )}
                 <button
                   onClick={() => setShowFilters(false)}
                   className="md:hidden text-gray-500 hover:text-gray-700 p-1"
+                  aria-label="Fechar painel de filtros"
                 >
-                  <X size={24} />
+                  <X size={24} aria-hidden="true" />
                 </button>
               </div>
             </div>
 
             {/* Search */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="rent-search-input" className="block text-sm font-medium text-gray-700 mb-2">
                 Buscar
               </label>
               <input
+                id="rent-search-input"
                 type="text"
                 placeholder="Nome, marca, modelo..."
                 value={searchTerm}
@@ -291,10 +303,11 @@ export default function Rent() {
 
             {/* Category */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="rent-category-select" className="block text-sm font-medium text-gray-700 mb-2">
                 Categoria
               </label>
               <select
+                id="rent-category-select"
                 value={filters.category}
                 onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
@@ -308,10 +321,11 @@ export default function Rent() {
 
             {/* Period */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="rent-period-select" className="block text-sm font-medium text-gray-700 mb-2">
                 Período de Aluguel
               </label>
               <select
+                id="rent-period-select"
                 value={filters.period}
                 onChange={(e) => setFilters(prev => ({ ...prev, period: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
@@ -326,10 +340,11 @@ export default function Rent() {
             {/* Brand */}
             {uniqueBrands.length > 0 && (
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="rent-brand-select" className="block text-sm font-medium text-gray-700 mb-2">
                   Marca
                 </label>
                 <select
+                  id="rent-brand-select"
                   value={filters.brand}
                   onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
@@ -349,18 +364,22 @@ export default function Rent() {
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <input
+                  id="rent-min-price"
                   type="number"
                   placeholder="Mín."
                   value={filters.minPrice || ''}
                   onChange={(e) => setFilters(prev => ({ ...prev, minPrice: Number(e.target.value) || 0 }))}
                   className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                  aria-label="Preço mínimo"
                 />
                 <input
+                  id="rent-max-price"
                   type="number"
                   placeholder="Máx."
                   value={filters.maxPrice || ''}
                   onChange={(e) => setFilters(prev => ({ ...prev, maxPrice: Number(e.target.value) || 0 }))}
                   className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                  aria-label="Preço máximo"
                 />
               </div>
             </div>
@@ -372,13 +391,16 @@ export default function Rent() {
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <input
+                  id="rent-min-year"
                   type="number"
                   placeholder="De"
                   value={filters.minYear || ''}
                   onChange={(e) => setFilters(prev => ({ ...prev, minYear: Number(e.target.value) || 0 }))}
                   className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                  aria-label="Ano mínimo"
                 />
                 <input
+                  id="rent-max-year"
                   type="number"
                   placeholder="Até"
                   value={filters.maxYear || ''}

@@ -1,9 +1,18 @@
 import React from 'react';
 import { ShoppingCart, Truck, Shield, DollarSign } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function HowItWorks() {
   return (
     <div className="container mx-auto px-4 py-12">
+      {/* SEO Meta Tags */}
+      <SEO 
+        title="Como Funciona - Guia Completo"
+        description="Aprenda como comprar, vender e alugar máquinas agrícolas no TratorHub. Passo a passo simples para anunciar seus equipamentos ou encontrar o que você precisa."
+        keywords="como funciona TratorHub, tutorial, passo a passo, como anunciar, como comprar"
+        canonical="https://www.tratorhub.com.br/como-funciona"
+      />
+      
       <h1 className="text-4xl font-bold text-center mb-12 text-gray-900">Como Funciona</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
