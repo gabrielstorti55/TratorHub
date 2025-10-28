@@ -14,26 +14,31 @@ export default defineConfig({
       compress: {
         drop_console: true, // Remove console.logs em produção
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'], // Remove funções específicas
-      },
-      format: {
-        comments: false, // Remove comentários
       },
     },
     // Dividir código em chunks menores para melhor cache
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'supabase': ['@supabase/supabase-js'],
-          'icons': ['lucide-react'],
-          'analytics': ['@vercel/analytics', '@vercel/speed-insights'],
-          'helmet': ['react-helmet-async'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@supabase')) {
+              return 'supabase';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons';
+            }
+            if (id.includes('@vercel')) {
+              return 'analytics';
+            }
+            if (id.includes('react-helmet')) {
+              return 'helmet';
+            }
+            return 'vendor';
+          }
         },
-      },
-      treeshake: {
-        moduleSideEffects: false, // Assume que módulos não têm efeitos colaterais
-        preset: 'recommended',
       },
     },
     // Aumentar limite de aviso para chunks grandes
