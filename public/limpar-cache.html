@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Limpar Cache - TratorHub</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    button {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:hover {
+      background: #15803d;
+    }
+    .success {
+      color: #16a34a;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .info {
+      background: #f3f4f6;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧹 Limpar Cache</h1>
+  <div class="info">
+    <p>Se você está tendo problemas com imagens ou fontes não carregando, use esta página para limpar completamente o cache.</p>
+  </div>
+  
+  <button onclick="clearEverything()">Limpar Tudo e Recarregar</button>
+  <button onclick="window.location.href='/'">Voltar para Home</button>
+  
+  <div id="message"></div>
+
+  <script>
+    async function clearEverything() {
+      const message = document.getElementById('message');
+      message.innerHTML = '<p>Limpando...</p>';
+
+      try {
+        // 1. Desregistrar Service Workers
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (let registration of registrations) {
+            await registration.unregister();
+          }
+          message.innerHTML += '<p class="success">✅ Service Workers removidos</p>';
+        }
+
+        // 2. Limpar todos os caches
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map(name => caches.delete(name)));
+          message.innerHTML += '<p class="success">✅ Cache limpo</p>';
+        }
+
+        // 3. Limpar localStorage
+        localStorage.clear();
+        message.innerHTML += '<p class="success">✅ LocalStorage limpo</p>';
+
+        // 4. Limpar sessionStorage
+        sessionStorage.clear();
+        message.innerHTML += '<p class="success">✅ SessionStorage limpo</p>';
+
+        message.innerHTML += '<p class="success">✨ Tudo limpo! Recarregando em 2 segundos...</p>';
+        
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+
+      } catch (error) {
+        message.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
+      }
+    }
+  </script>
+</body>
+</html>
