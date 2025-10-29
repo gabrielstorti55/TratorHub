@@ -14,6 +14,23 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       .register('/sw.js')
       .then((registration) => {
         console.log('✅ Service Worker registrado:', registration);
+        
+        // Verificar atualizações automaticamente
+        registration.update();
+        
+        // Forçar atualização se houver nova versão
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Nova versão disponível - atualizar silenciosamente
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                window.location.reload();
+              }
+            });
+          }
+        });
       })
       .catch((error) => {
         console.log('❌ Erro ao registrar Service Worker:', error);

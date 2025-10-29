@@ -1,6 +1,6 @@
 // Service Worker para cache offline e melhor performance
-const CACHE_NAME = 'agromachine-v1';
-const RUNTIME_CACHE = 'agromachine-runtime';
+const CACHE_NAME = 'agromachine-v2';
+const RUNTIME_CACHE = 'agromachine-runtime-v2';
 
 // Recursos para cache inicial
 const PRECACHE_URLS = [
@@ -37,9 +37,13 @@ self.addEventListener('fetch', (event) => {
   // Ignorar requisições que não sejam GET
   if (event.request.method !== 'GET') return;
 
-  // Ignorar requisições de APIs externas (Supabase, IBGE)
+  // Ignorar requisições de APIs externas e recursos externos
   if (event.request.url.includes('supabase') || 
-      event.request.url.includes('ibge.gov.br')) {
+      event.request.url.includes('ibge.gov.br') ||
+      event.request.url.includes('fonts.googleapis.com') ||
+      event.request.url.includes('fonts.gstatic.com') ||
+      event.request.url.includes('googletagmanager.com') ||
+      event.request.url.includes('google-analytics.com')) {
     return;
   }
 
