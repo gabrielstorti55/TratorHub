@@ -37,13 +37,9 @@ self.addEventListener('fetch', (event) => {
   // Ignorar requisições que não sejam GET
   if (event.request.method !== 'GET') return;
 
-  // Ignorar requisições de APIs externas e recursos externos
-  if (event.request.url.includes('supabase') || 
-      event.request.url.includes('ibge.gov.br') ||
-      event.request.url.includes('fonts.googleapis.com') ||
-      event.request.url.includes('fonts.gstatic.com') ||
-      event.request.url.includes('googletagmanager.com') ||
-      event.request.url.includes('google-analytics.com')) {
+  // Ignorar qualquer requisição externa (origem diferente do site)
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) {
     return;
   }
 
