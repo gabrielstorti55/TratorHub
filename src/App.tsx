@@ -2,8 +2,10 @@ import { useEffect, useState, lazy, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { supabase, isAuthenticated } from './lib/supabase';
 import { usePrefetchRoutes } from './hooks/usePrefetch';
+import { CompareProvider } from './contexts/CompareContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import CompareBar from './components/CompareBar';
 
 // Lazy loading para melhor performance
 const Home = lazy(() => import('./pages/Home'));
@@ -18,6 +20,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const MyListings = lazy(() => import('./pages/MyListings'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 const EditListing = lazy(() => import('./pages/EditListing'));
+const Compare = lazy(() => import('./pages/Compare'));
 
 // Loading component
 const PageLoader = () => (
@@ -90,27 +93,31 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
-      <div className="flex-grow">
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/comprar" element={<Buy />} />
-            <Route path="/alugar" element={<Rent />} />
-            <Route path="/vender" element={<Sell />} />
-            <Route path="/como-funciona" element={<HowItWorks />} />
-            <Route path="/sobre" element={<About />} />
-            <Route path="/contato" element={<Contact />} />
-            <Route path="/entrar" element={<Login />} />
-            <Route path="/perfil" element={<Profile />} />
-            <Route path="/meus-anuncios" element={<MyListings />} />
-            <Route path="/produto/:id" element={<ProductDetails />} />
-            <Route path="/editar-anuncio/:id" element={<EditListing />} />
-          </Routes>
-        </Suspense>
+    <CompareProvider>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Navbar />
+        <div className="flex-grow">
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/comprar" element={<Buy />} />
+              <Route path="/alugar" element={<Rent />} />
+              <Route path="/vender" element={<Sell />} />
+              <Route path="/como-funciona" element={<HowItWorks />} />
+              <Route path="/sobre" element={<About />} />
+              <Route path="/contato" element={<Contact />} />
+              <Route path="/entrar" element={<Login />} />
+              <Route path="/perfil" element={<Profile />} />
+              <Route path="/meus-anuncios" element={<MyListings />} />
+              <Route path="/produto/:id" element={<ProductDetails />} />
+              <Route path="/editar-anuncio/:id" element={<EditListing />} />
+              <Route path="/comparar" element={<Compare />} />
+            </Routes>
+          </Suspense>
+        </div>
+        <CompareBar />
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    </CompareProvider>
   );
 }

@@ -1,7 +1,9 @@
 import { memo } from 'react';
-import { MapPin, Calendar } from 'lucide-react';
+import { MapPin, Calendar, Scale } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { optimizeImageUrl, generateSrcSet } from '../lib/imageOptimization';
+import { useCompare } from '../contexts/CompareContext';
+import type { Product } from '../hooks/useProducts';
 
 interface ProductCardProps {
   id: string;
@@ -12,6 +14,10 @@ interface ProductCardProps {
   image: string;
   location: string;
   year: string;
+  brand?: string;
+  model?: string;
+  category?: string;
+  fullProduct?: Product;
 }
 
 const ProductCard = memo(function ProductCard({
@@ -22,9 +28,14 @@ const ProductCard = memo(function ProductCard({
   period,
   image,
   location,
-  year
+  year,
+  fullProduct
 }: ProductCardProps) {
   const navigate = useNavigate();
+  const { addToCompare, removeFromCompare, isInCompare, compareProducts, maxCompareItems } = useCompare();
+
+  const inCompare = isInCompare(id);
+  const canAddMore = compareProducts.length < maxCompareItems;
 
   // Otimizar URL da imagem
   const optimizedImage = optimizeImageUrl(image, { 
@@ -35,13 +46,54 @@ const ProductCard = memo(function ProductCard({
   
   const imageSrcSet = generateSrcSet(image);
 
+  const handleCompareToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (inCompare) {
+      removeFromCompare(id);
+    } else if (canAddMore && fullProduct) {
+      addToCompare(fullProduct);
+    }
+  };
+
   return (
     <div 
-      className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition group cursor-pointer"
+      className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition group cursor-pointer relative"
       onClick={() => navigate(`/produto/${id}`)}
       role="article"
       aria-label={`${title} - ${type} por R$ ${price} em ${location}`}
     >
+      {/* Checkbox de Comparação */}
+      {fullProduct && type === 'Venda' && (
+        <div className="absolute top-3 left-3 z-20">
+          <button
+            onClick={handleCompareToggle}
+            disabled={!canAddMore && !inCompare}
+            className={`
+              flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-lg
+              transition-all transform hover:scale-105 backdrop-blur-sm
+              ${inCompare 
+                ? 'bg-green-600 text-white ring-2 ring-green-400' 
+                : canAddMore
+                  ? 'bg-white/95 text-gray-700 hover:bg-green-50 hover:text-green-700 ring-1 ring-gray-300'
+                  : 'bg-gray-300/80 text-gray-500 cursor-not-allowed'
+              }
+            `}
+            aria-label={inCompare ? 'Remover da comparação' : 'Adicionar à comparação'}
+            title={
+              inCompare 
+                ? 'Remover da comparação' 
+                : !canAddMore 
+                  ? `Máximo de ${maxCompareItems} produtos para comparar`
+                  : 'Adicionar à comparação'
+            }
+          >
+            <Scale size={14} className={inCompare ? 'animate-pulse' : ''} />
+            {inCompare ? 'Na comparação' : 'Comparar'}
+          </button>
+        </div>
+      )}
+      
       <div className="relative aspect-video bg-gray-200">
         <img
           src={optimizedImage}

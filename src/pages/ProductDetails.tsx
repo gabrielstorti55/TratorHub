@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Phone, ArrowLeft, AlertTriangle, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import { MapPin, Calendar, Phone, ArrowLeft, AlertTriangle, ChevronLeft, ChevronRight, MessageCircle, Scale } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useCompare } from '../contexts/CompareContext';
 import type { Product } from '../hooks/useProducts';
 import type { Database } from '../lib/database.types';
 
@@ -21,6 +22,7 @@ interface ProductImage {
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCompare, removeFromCompare, isInCompare, compareProducts, maxCompareItems } = useCompare();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +30,9 @@ export default function ProductDetails() {
   const [sellerNotFound, setSellerNotFound] = useState(false);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const inCompare = product ? isInCompare(product.id) : false;
+  const canAddMore = compareProducts.length < maxCompareItems;
 
   React.useEffect(() => {
     async function loadProduct() {
@@ -274,7 +279,7 @@ export default function ProductDetails() {
               </div>
 
               {/* Meta Info */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                   <MapPin size={18} className="text-green-600 flex-shrink-0" />
                   <span className="text-sm text-gray-700 font-medium truncate">{product.location}</span>
@@ -284,6 +289,40 @@ export default function ProductDetails() {
                   <span className="text-sm text-gray-700 font-medium">Ano {product.year}</span>
                 </div>
               </div>
+
+              {/* Botão de Comparar Mobile - Apenas para Venda */}
+              {product.type === 'Venda' && (
+                <button
+                  onClick={() => {
+                    if (inCompare) {
+                      removeFromCompare(product.id);
+                    } else if (canAddMore) {
+                      addToCompare(product);
+                    }
+                  }}
+                  disabled={!canAddMore && !inCompare}
+                  className={`
+                    w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm
+                    transition-all shadow-md
+                    ${inCompare 
+                      ? 'bg-green-600 text-white hover:bg-green-700 ring-2 ring-green-400' 
+                      : canAddMore
+                        ? 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:border-green-500'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }
+                  `}
+                  title={
+                    inCompare 
+                      ? 'Remover da comparação' 
+                      : !canAddMore 
+                        ? `Máximo de ${maxCompareItems} produtos para comparar`
+                        : 'Adicionar à comparação'
+                  }
+                >
+                  <Scale size={18} className={inCompare ? 'animate-pulse' : ''} />
+                  {inCompare ? 'Na Comparação' : 'Adicionar à Comparação'}
+                </button>
+              )}
             </div>
 
             {/* Descrição */}
@@ -421,6 +460,40 @@ export default function ProductDetails() {
                     <p className="text-sm text-gray-600">por {product.period?.toLowerCase()}</p>
                   )}
                 </div>
+
+                {/* Botão de Comparar - Apenas para Venda */}
+                {product.type === 'Venda' && (
+                  <button
+                    onClick={() => {
+                      if (inCompare) {
+                        removeFromCompare(product.id);
+                      } else if (canAddMore) {
+                        addToCompare(product);
+                      }
+                    }}
+                    disabled={!canAddMore && !inCompare}
+                    className={`
+                      w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm
+                      transition-all transform hover:scale-105 shadow-md mb-6
+                      ${inCompare 
+                        ? 'bg-green-600 text-white hover:bg-green-700 ring-2 ring-green-400' 
+                        : canAddMore
+                          ? 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:border-green-500'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }
+                    `}
+                    title={
+                      inCompare 
+                        ? 'Remover da comparação' 
+                        : !canAddMore 
+                          ? `Máximo de ${maxCompareItems} produtos para comparar`
+                          : 'Adicionar à comparação'
+                    }
+                  >
+                    <Scale size={18} className={inCompare ? 'animate-pulse' : ''} />
+                    {inCompare ? 'Na Comparação' : 'Adicionar à Comparação'}
+                  </button>
+                )}
               </div>
 
               {/* Card do Vendedor */}

@@ -219,7 +219,7 @@ export default function Buy() {
   const activeFiltersCount = Object.values(filters).filter(v => v && v !== 0 && v !== new Date().getFullYear()).length + (searchTerm ? 1 : 0);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 pb-24 sm:pb-8">
       {/* SEO Meta Tags */}
       <SEO 
         title="Comprar Máquinas e Equipamentos Agrícolas"
@@ -551,6 +551,10 @@ export default function Buy() {
                 image={product.image_url}
                 location={product.location}
                 year={product.year}
+                brand={product.brand}
+                model={product.model}
+                category={product.category}
+                fullProduct={product}
               />
             ))}
 

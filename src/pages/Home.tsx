@@ -318,6 +318,10 @@ export default function Home() {
                 image={product.image_url}
                 location={product.location}
                 year={product.year}
+                brand={product.brand}
+                model={product.model}
+                category={product.category}
+                fullProduct={product}
               />
             ))}
           </div>
