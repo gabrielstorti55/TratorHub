@@ -261,21 +261,25 @@ export default function Home() {
 
       {/* Produtos em Destaque / Resultados da Busca */}
       <div ref={resultsRef} className="container mx-auto px-4 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">
+        <div className="flex items-center gap-4 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mr-4">
             {searchTerm || selectedCategory ? 'Resultados da Busca' : 'Destaques'}
           </h2>
-          <div className="flex gap-4">
-            <button 
+          <div className="flex flex-col w-full max-w-xs gap-3 sm:flex-row sm:w-auto">
+            <button
               onClick={() => navigate('/comprar')}
-              className="text-green-600 hover:text-green-500 font-semibold"
+              className="flex items-center justify-center gap-2 bg-green-100 text-green-700 px-5 py-3 rounded-lg font-semibold hover:bg-green-300 transition w-full"
+              aria-label="Ir para página de compra"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A2 2 0 007.6 18h8.8a2 2 0 001.95-2.3L17 13M7 13V6h13" /></svg>
               Comprar
             </button>
-            <button 
+            <button
               onClick={() => navigate('/alugar')}
-              className="text-green-600 hover:text-green-500 font-semibold"
+              className="flex items-center justify-center gap-2 bg-gray-300 text-gray-700 px-5 py-3 rounded-lg font-semibold hover:bg-gray-400 transition w-full"
+              aria-label="Ir para página de aluguel"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7V3a1 1 0 00-1-1H9a1 1 0 00-1 1v4M5 8h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V10a2 2 0 012-2z" /></svg>
               Alugar
             </button>
           </div>

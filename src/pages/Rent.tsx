@@ -235,6 +235,19 @@ export default function Rent() {
         canonical="https://www.tratorhub.com.br/alugar"
       />
       
+      {/* Seta de voltar sticky igual página de produto */}
+      <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-10 mb-8">
+        <div className="container mx-auto px-0 py-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-green-600 transition-all hover:gap-3"
+            aria-label="Voltar"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            <span>Voltar</span>
+          </button>
+        </div>
+      </div>
       <div className="mb-8">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-900">Alugar Equipamentos</h1>
       </div>
