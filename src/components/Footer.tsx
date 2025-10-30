@@ -55,7 +55,7 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4">Redes Sociais</h3>
             <div className="flex gap-4">
-              <a href="https://www.facebook.com/profile.php?id=61582927204165" className="hover:text-green-400 transition" aria-label="Facebook do TratorHub">
+              <a href="https://www.facebook.com/profile.php?id=61582927204165" target="_blank" className="hover:text-green-400 transition" aria-label="Facebook do TratorHub">
                 <Facebook size={24} aria-hidden="true" />
               </a>
               <a href="https://www.instagram.com/tratorhub" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition" aria-label="Instagram do TratorHub">

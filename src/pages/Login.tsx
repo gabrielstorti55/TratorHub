@@ -23,6 +23,7 @@ export default function Login() {
     cpf_cnpj: '',
     phone: '',
   });
+  const [hasSession, setHasSession] = useState(false);
 
   useEffect(() => {
     // Verificar se acabou de vir do link de recuperação
@@ -58,7 +59,10 @@ export default function Login() {
     if (!isResettingPassword && !hasPasswordRecovery) {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
+          setHasSession(true);
           navigate((location.state as any)?.from || '/');
+        } else {
+          setHasSession(false);
         }
       });
     }
@@ -362,7 +366,15 @@ export default function Login() {
 
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900">
-              {isResettingPassword ? 'Nova Senha' : isForgotPassword ? 'Recuperar Senha' : isRegistering ? 'Criar uma conta' : 'Bem-vindo de volta'}
+              {isResettingPassword
+                ? 'Nova Senha'
+                : isForgotPassword
+                ? 'Recuperar Senha'
+                : isRegistering
+                ? 'Criar uma conta'
+                : hasSession
+                ? 'Bem-vindo de volta'
+                : 'Bem-vindo ao TratorHub!'}
             </h2>
             <p className="mt-2 text-gray-600">
               {isResettingPassword
@@ -371,7 +383,9 @@ export default function Login() {
                 ? 'Digite seu email para receber o link de recuperação'
                 : isRegistering
                 ? 'Preencha seus dados para se cadastrar'
-                : 'Entre para acessar sua conta'}
+                : hasSession
+                ? 'Entre para acessar sua conta'
+                : 'Seu próximo negócio começa onde o agro se encontra. Junte-se agora!'}
             </p>
           </div>
 
