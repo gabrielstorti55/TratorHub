@@ -1,4 +1,4 @@
-# robots.txt para AgroMachine - www.agromachine.com.br
+# robots.txt para TratorHub - www.tratorhub.com.br
 # Otimizado para SEO e Google Search Console
 
 User-agent: *
@@ -11,7 +11,7 @@ Disallow: /editar-anuncio
 Disallow: /admin
 
 # Sitemap principal
-Sitemap: https://www.agromachine.com.br/sitemap.xml
+Sitemap: https://www.tratorhub.com.br/sitemap.xml
 
 User-agent: Googlebot
 Allow: /
