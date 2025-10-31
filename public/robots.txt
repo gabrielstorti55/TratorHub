@@ -1,24 +1,22 @@
-# robots.txt para TratorHub - www.tratorhub.com.br
+# robots.txt para AgroMachine - www.agromachine.com.br
 # Otimizado para SEO e Google Search Console
 
-# Permitir acesso total aos bots de busca
 User-agent: *
 Allow: /
 
-# Bloquear apenas rotas administrativas/privadas (se houver)
+# Bloquear rotas administrativas/privadas
 Disallow: /perfil
 Disallow: /meus-anuncios
 Disallow: /editar-anuncio
+Disallow: /admin
 
 # Sitemap principal
-Sitemap: https://www.tratorhub.com.br/sitemap.xml
+Sitemap: https://www.agromachine.com.br/sitemap.xml
 
-# Bots específicos (Google, Bing, etc)
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
 
-# Evitar sobrecarga do servidor
 Crawl-delay: 1
