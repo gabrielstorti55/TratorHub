@@ -38,17 +38,17 @@ const ProductCard = memo(function ProductCard({
   const canAddMore = compareProducts.length < maxCompareItems;
 
   // Otimizar URL da imagem
-  const optimizedImage = optimizeImageUrl(image, { 
-    width: 400, 
+  const optimizedImage = optimizeImageUrl(image, {
+    width: 400,
     quality: 80,
-    format: 'webp' 
+    format: 'webp'
   });
-  
+
   const imageSrcSet = generateSrcSet(image);
 
   const handleCompareToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (inCompare) {
       removeFromCompare(id);
     } else if (canAddMore && fullProduct) {
@@ -60,12 +60,44 @@ const ProductCard = memo(function ProductCard({
   const formattedPrice = Number(price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   return (
-    <div 
+    <div
       className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition group cursor-pointer relative"
       onClick={() => navigate(`/produto/${id}`)}
       role="article"
       aria-label={`${title} - ${type} por ${formattedPrice} em ${location}`}
     >
+      {/* Checkbox de Comparação */}
+      {fullProduct && type === 'Venda' && (
+        <div className="absolute top-3 left-3 z-20">
+          <button
+            onClick={handleCompareToggle}
+            disabled={!canAddMore && !inCompare}
+            className={`
+              flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-lg
+              transition-all transform hover:scale-105 backdrop-blur-sm
+              ${inCompare
+                ? 'bg-green-600 text-white ring-2 ring-green-400'
+                : canAddMore
+                  ? 'bg-white/95 text-gray-700 hover:bg-green-50 hover:text-green-700 ring-1 ring-gray-300'
+                  : 'bg-gray-300/80 text-gray-500 cursor-not-allowed'
+              }
+            `}
+            aria-label={inCompare ? 'Remover da comparação' : 'Adicionar à comparação'}
+            title={
+              inCompare
+                ? 'Remover da comparação'
+                : !canAddMore
+                  ? `Máximo de ${maxCompareItems} produtos para comparar`
+                  : 'Adicionar à comparação'
+            }
+          >
+            <Scale size={14} className={inCompare ? 'animate-pulse' : ''} />
+            {inCompare ? 'Na comparação' : 'Comparar'}
+          </button>
+        </div>
+      )}
+
+
       {/* ...existing code... */}
       <div className="relative aspect-video bg-gray-200">
         <img
@@ -79,11 +111,10 @@ const ProductCard = memo(function ProductCard({
           className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
         />
         <div className="absolute top-3 right-3 z-10">
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow-md ${
-            type === 'Venda'
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow-md ${type === 'Venda'
               ? 'bg-green-600 text-white'
               : 'bg-gray-900 text-white'
-          }`}>
+            }`}>
             {type}
           </span>
         </div>
@@ -111,7 +142,7 @@ const ProductCard = memo(function ProductCard({
               {formattedPrice}
             </p>
           </div>
-          <button 
+          <button
             className="text-green-600 font-semibold text-sm hover:text-green-500 transition"
             aria-label={`Ver detalhes de ${title}`}
             onClick={(e) => {
