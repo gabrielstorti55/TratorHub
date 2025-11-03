@@ -98,7 +98,7 @@ export default function App() {
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
         <Breadcrumbs />
-        <div className="flex-grow">
+        <main id="main-content" className="flex-grow">
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -116,7 +116,7 @@ export default function App() {
               <Route path="/comparar" element={<Compare />} />
             </Routes>
           </Suspense>
-        </div>
+        </main>
         <CompareBar />
         <Footer />
       </div>
