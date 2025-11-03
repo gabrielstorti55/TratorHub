@@ -36,6 +36,56 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  // Função para upload imediato da foto de perfil
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarLoading(true);
+    setAvatarError(null);
+    try {
+      // Pega sessão do usuário
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session) {
+        setAvatarError('Usuário não autenticado.');
+        setAvatarLoading(false);
+        return;
+      }
+      const userId = session.user.id;
+      // Nome único para o arquivo
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar_${userId}_${Date.now()}.${fileExt}`;
+      // Upload para bucket 'avatars'
+      const { data, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+      if (uploadError) throw uploadError;
+      // Pega URL pública
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+      const publicUrl = urlData?.publicUrl;
+      if (!publicUrl) throw new Error('Não foi possível obter a URL da imagem.');
+      // Atualiza avatar_url no banco
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
+        .eq('user_id', userId);
+      if (updateError) throw updateError;
+      // Atualiza estado local
+      setProfile(prev => prev ? { ...prev, avatar_url: publicUrl } : prev);
+    } catch (err: any) {
+      setAvatarError('Erro ao enviar foto. Tente novamente.');
+      console.error('Erro upload avatar:', err);
+    } finally {
+      setAvatarLoading(false);
+    }
+  };
   const [activeTab, setActiveTab] = useState<TabType>('personal');
   const [userProducts, setUserProducts] = useState<Product[]>([]);
 
@@ -517,7 +567,7 @@ export default function Profile() {
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center">
+                  <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                     {profile?.avatar_url ? (
                       <img
                         src={profile.avatar_url}
@@ -527,14 +577,26 @@ export default function Profile() {
                     ) : (
                       <User className="text-gray-600" size={32} />
                     )}
+                    {avatarLoading && (
+                      <div className="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center">
+                        <Loader2 className="animate-spin text-green-600" size={32} />
+                      </div>
+                    )}
                   </div>
-                  <button 
-                    className="absolute bottom-0 right-0 bg-gray-900 text-white p-2 rounded-full hover:bg-gray-800 transition"
-                    title="Alterar foto"
-                  >
+                  <label className="absolute bottom-0 right-0 bg-gray-900 text-white p-2 rounded-full hover:bg-gray-800 transition cursor-pointer" title="Alterar foto">
                     <Camera size={16} />
-                  </button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                      disabled={avatarLoading}
+                    />
+                  </label>
                 </div>
+                {avatarError && (
+                  <span className="text-xs text-red-600 ml-2">{avatarError}</span>
+                )}
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
                     {profile?.full_name || 'Complete seu perfil'}
