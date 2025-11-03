@@ -6,6 +6,7 @@ import { CompareProvider } from './contexts/CompareContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CompareBar from './components/CompareBar';
+import Breadcrumbs from './components/Breadcrumbs';
 
 // Lazy loading para melhor performance
 const Home = lazy(() => import('./pages/Home'));
@@ -96,6 +97,7 @@ export default function App() {
     <CompareProvider>
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
+        <Breadcrumbs />
         <div className="flex-grow">
           <Suspense fallback={<PageLoader />}>
             <Routes>
