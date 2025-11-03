@@ -65,7 +65,4 @@
     <priority>0.7</priority>
   </url>
   
-  <!-- Nota: Páginas privadas (/perfil, /meus-anuncios, /entrar) foram removidas -->
-  <!-- Produtos individuais devem ser adicionados dinamicamente via script -->
-  
 </urlset>

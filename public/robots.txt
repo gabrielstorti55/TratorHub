@@ -1,17 +1,14 @@
-# robots.txt para TratorHub - www.tratorhub.com.br
-# Otimizado para SEO e Google Search Console
+# robots.txt para TratorHub
 # Atualizado: 03/11/2025
 
 User-agent: *
 Allow: /
 
-# Bloquear apenas rotas realmente privadas
+# Bloquear apenas rotas administrativas
 Disallow: /editar-anuncio/
 Disallow: /admin/
-Disallow: /api/
-Disallow: /*.json$
 
-# Permitir explicitamente páginas importantes
+# Permitir páginas importantes (explícito para clareza)
 Allow: /comprar
 Allow: /alugar
 Allow: /vender
@@ -23,23 +20,3 @@ Allow: /comparar
 
 # Sitemap principal
 Sitemap: https://www.tratorhub.com.br/sitemap.xml
-
-# Configurações específicas para Googlebot
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 0
-
-# Configurações específicas para Bingbot
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-# Bloquear bots maliciosos conhecidos
-User-agent: AhrefsBot
-Disallow: /
-
-User-agent: SemrushBot
-Disallow: /
-
-User-agent: DotBot
-Disallow: /
