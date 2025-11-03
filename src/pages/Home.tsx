@@ -111,27 +111,19 @@ export default function Home() {
         {/* Carrossel de Imagens */}
         <div className="absolute inset-0">
           {carouselImages.map((image, index) => (
-            <picture key={index}>
-              {/* WebP para navegadores modernos */}
-              <source 
-                srcSet={`${image.replace(/\.(jpg|jpeg)$/i, '.webp')} 1x, ${image.replace(/\.(jpg|jpeg)$/i, '@2x.webp')} 2x`}
-                type="image/webp"
-              />
-              {/* Fallback JPEG otimizado */}
-              <img
-                src={image}
-                srcSet={`${image} 1x, ${image.replace(/\.jpg$/i, '@2x.jpg')} 2x`}
-                alt={`Agricultura brasileira: plantações e maquinário agrícola moderno - ${index + 1}`}
-                className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
-                  index === currentImageIndex ? 'opacity-60' : 'opacity-0'
-                }`}
-                width="1920"
-                height="1080"
-                loading={index === 0 ? 'eager' : 'lazy'}
-                decoding={index === 0 ? 'sync' : 'async'}
-                fetchPriority={index === 0 ? 'high' : 'low'}
-              />
-            </picture>
+            <img
+              key={index}
+              src={image}
+              alt={`Agricultura brasileira: plantações e maquinário agrícola moderno - ${index + 1}`}
+              className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
+                index === currentImageIndex ? 'opacity-60' : 'opacity-0'
+              }`}
+              width="1920"
+              height="1080"
+              loading={index === 0 ? 'eager' : 'lazy'}
+              decoding={index === 0 ? 'sync' : 'async'}
+              fetchPriority={index === 0 ? 'high' : 'low'}
+            />
           ))}
         </div>
 
