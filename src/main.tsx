@@ -6,6 +6,12 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import App from './App.tsx';
 import './index.css';
+import { initGA } from './analytics';
+
+// Inicializar Google Analytics (após carregar gtag.js no index.html)
+if (import.meta.env.PROD) {
+  initGA('G-TYV5B6WGJ1');
+}
 
 // Registrar Service Worker para cache offline
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
@@ -13,7 +19,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
     navigator.serviceWorker
       .register('/sw.js')
       .then((registration) => {
-        console.log('✅ Service Worker registrado:', registration);
+        console.log('✅ Service Worker registrado:', registration.scope);
         
         // Verificar atualizações automaticamente
         registration.update();
@@ -33,7 +39,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
         });
       })
       .catch((error) => {
-        console.log('❌ Erro ao registrar Service Worker:', error);
+        console.warn('Service Worker registration failed:', error);
       });
   });
 }
