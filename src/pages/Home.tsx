@@ -111,48 +111,68 @@ export default function Home() {
         {/* Carrossel de Imagens */}
         <div className="absolute inset-0">
           {carouselImages.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Imagem de agricultura brasileira mostrando plantações e maquinário agrícola - foto ${index + 1}`}
-              className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
-                index === currentImageIndex ? 'opacity-60' : 'opacity-0'
-              }`}
-              width="1920"
-              height="1080"
-              loading={index === 0 ? 'eager' : 'lazy'}
-            />
+            <picture key={index}>
+              {/* WebP para navegadores modernos */}
+              <source 
+                srcSet={`${image.replace(/\.(jpg|jpeg)$/i, '.webp')} 1x, ${image.replace(/\.(jpg|jpeg)$/i, '@2x.webp')} 2x`}
+                type="image/webp"
+              />
+              {/* Fallback JPEG otimizado */}
+              <img
+                src={image}
+                srcSet={`${image} 1x, ${image.replace(/\.jpg$/i, '@2x.jpg')} 2x`}
+                alt={`Agricultura brasileira: plantações e maquinário agrícola moderno - ${index + 1}`}
+                className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
+                  index === currentImageIndex ? 'opacity-60' : 'opacity-0'
+                }`}
+                width="1920"
+                height="1080"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                decoding={index === 0 ? 'sync' : 'async'}
+                fetchPriority={index === 0 ? 'high' : 'low'}
+              />
+            </picture>
           ))}
         </div>
 
-        {/* Botões de navegação */}
+        {/* Botões de navegação - Áreas de toque maiores (min 48x48px - WCAG) */}
         <button
           onClick={prevImage}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors"
+          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-3 md:p-4 rounded-full transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center"
           aria-label="Imagem anterior do carrossel"
+          type="button"
         >
           <ChevronLeft size={32} aria-hidden="true" />
         </button>
         <button
           onClick={nextImage}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors"
+          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white p-3 md:p-4 rounded-full transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center"
           aria-label="Próxima imagem do carrossel"
+          type="button"
         >
           <ChevronRight size={32} aria-hidden="true" />
         </button>
 
-        {/* Indicadores */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+        {/* Indicadores - Áreas de toque maiores */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-3">
           {carouselImages.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentImageIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all ${
-                index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50'
+              className={`rounded-full transition-all min-w-[48px] min-h-[48px] flex items-center justify-center p-2 ${
+                index === currentImageIndex ? 'bg-white/30' : 'bg-transparent'
               }`}
-              aria-label={`Ir para imagem ${index + 1} do carrossel`}
-              aria-current={index === currentImageIndex ? 'true' : 'false'}
-            />
+              aria-label={`Ir para imagem ${index + 1} de ${carouselImages.length}`}
+              aria-current={index === currentImageIndex}
+              type="button"
+            >
+              <span 
+                className={`block rounded-full transition-all ${
+                  index === currentImageIndex ? 'bg-white w-8 h-3' : 'bg-white/50 w-3 h-3'
+                }`}
+                aria-hidden="true"
+              />
+            </button>
           ))}
         </div>
 
