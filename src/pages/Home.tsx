@@ -21,11 +21,20 @@ export default function Home() {
   // Referência para a seção de resultados
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Imagens do carrossel
+  // Imagens do carrossel (usar versões otimizadas)
   const carouselImages = [
-    '/maos-que-estao-escolhendo-graos-de-cafe-cafeeiro.jpg',
-    '/martin-derksen-PF5tnMB4phE-unsplash.jpg',
-    '/projeto-cafe-gato-mourisco-gckFDCVTVy4-unsplash.jpg',
+    {
+      original: '/maos-que-estao-escolhendo-graos-de-cafe-cafeeiro.jpg',
+      optimized: 'maos-que-estao-escolhendo-graos-de-cafe-cafeeiro'
+    },
+    {
+      original: '/martin-derksen-PF5tnMB4phE-unsplash.jpg',
+      optimized: 'martin-derksen-PF5tnMB4phE-unsplash'
+    },
+    {
+      original: '/projeto-cafe-gato-mourisco-gckFDCVTVy4-unsplash.jpg',
+      optimized: 'projeto-cafe-gato-mourisco-gckFDCVTVy4-unsplash'
+    }
   ];
 
   // Auto-play do carrossel
@@ -111,19 +120,31 @@ export default function Home() {
         {/* Carrossel de Imagens */}
         <div className="absolute inset-0">
           {carouselImages.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Agricultura brasileira: plantações e maquinário agrícola moderno - ${index + 1}`}
-              className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
-                index === currentImageIndex ? 'opacity-60' : 'opacity-0'
-              }`}
-              width="1920"
-              height="1080"
-              loading={index === 0 ? 'eager' : 'lazy'}
-              decoding={index === 0 ? 'sync' : 'async'}
-              fetchPriority={index === 0 ? 'high' : 'low'}
-            />
+            <picture key={index}>
+              {/* AVIF - Melhor compressão (~50% menor que WebP) */}
+              <source
+                srcSet={`/optimized/${image.optimized}-large.avif 1x, /optimized/${image.optimized}-large@2x.avif 2x`}
+                type="image/avif"
+              />
+              {/* WebP - Boa compressão (~30% menor que JPEG) */}
+              <source
+                srcSet={`/optimized/${image.optimized}-large.webp 1x, /optimized/${image.optimized}-large@2x.webp 2x`}
+                type="image/webp"
+              />
+              {/* Fallback JPEG para navegadores antigos */}
+              <img
+                src={image.original}
+                alt={`Agricultura brasileira: plantações e maquinário agrícola moderno - ${index + 1}`}
+                className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
+                  index === currentImageIndex ? 'opacity-60' : 'opacity-0'
+                }`}
+                width="1920"
+                height="1080"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                decoding={index === 0 ? 'sync' : 'async'}
+                fetchPriority={index === 0 ? 'high' : 'low'}
+              />
+            </picture>
           ))}
         </div>
 
