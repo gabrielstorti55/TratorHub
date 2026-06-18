@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase';
 import { useCompare } from '../contexts/CompareContext';
 import type { Product } from '../hooks/useProducts';
 import type { Database } from '../lib/database.types';
+import SEO from '../components/SEO';
+import StructuredData, { createProductSchema, createBreadcrumbSchema } from '../components/StructuredData';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -167,8 +169,41 @@ export default function ProductDetails() {
     );
   }
 
+  const pageTitle = `${product.brand} ${product.model} ${product.year}`.trim();
+  const pageDescription = `${product.title} em ${product.location}. ${product.type === 'Venda' ? 'À venda' : 'Para alugar'} por R$ ${product.price?.toLocaleString('pt-BR')}${product.type === 'Aluguel' && product.period ? ` (${product.period.toLowerCase()})` : ''}. ${product.description?.slice(0, 100) || ''}`.trim();
+  const pageUrl = `https://www.tratorhub.com.br/produto/${product.id}`;
+  const mainImage = productImages[0]?.image_url || product.image_url;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <SEO
+        title={pageTitle}
+        description={pageDescription}
+        keywords={`${product.brand}, ${product.model}, ${product.category}, ${product.type === 'Venda' ? 'comprar' : 'alugar'} ${product.category.toLowerCase()}, máquinas agrícolas ${product.location}`}
+        canonical={pageUrl}
+        ogImage={mainImage}
+        ogType="product"
+      />
+      <StructuredData
+        type="Product"
+        data={createProductSchema({
+          name: pageTitle,
+          image: mainImage,
+          description: product.description || pageDescription,
+          brand: product.brand,
+          price: product.price,
+          availability: product.type === 'Venda' ? 'https://schema.org/InStock' : 'https://schema.org/InStock',
+          condition: 'https://schema.org/UsedCondition',
+        })}
+      />
+      <StructuredData
+        type="BreadcrumbList"
+        data={createBreadcrumbSchema([
+          { name: 'Início', url: 'https://www.tratorhub.com.br' },
+          { name: product.type === 'Venda' ? 'Comprar' : 'Alugar', url: `https://www.tratorhub.com.br/${product.type === 'Venda' ? 'comprar' : 'alugar'}` },
+          { name: pageTitle, url: pageUrl },
+        ])}
+      />
       {/* Breadcrumb Navigation */}
       <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">

@@ -7,16 +7,48 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { writeFileSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+/**
+ * Carrega variáveis do arquivo .env manualmente (sem depender de pacote externo)
+ */
+function loadEnvFile() {
+  const envPath = join(__dirname, '..', '.env');
+  if (!existsSync(envPath)) return;
+
+  const content = readFileSync(envPath, 'utf-8');
+  content.split('\n').forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) return;
+    const equalIndex = trimmed.indexOf('=');
+    if (equalIndex === -1) return;
+    const key = trimmed.slice(0, equalIndex).trim();
+    let value = trimmed.slice(equalIndex + 1).trim();
+    // Remove aspas envolventes, se houver
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    if (!process.env[key]) {
+      process.env[key] = value;
+    }
+  });
+}
+
+loadEnvFile();
+
 // Configuração do Supabase
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://gxfhiqhpwjknwqlefhzz.supabase.co';
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4ZmhpcWhwd2prbndxbGVmaHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY5ODI0NjQsImV4cCI6MjA1MjU1ODQ2NH0.xJvPVFyAVGNbYfDCcI0X2_1FgzRiAj2PY9hAXg9kP0Q';
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Defina VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no ambiente (.env) antes de rodar este script.');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -46,8 +78,7 @@ async function fetchProducts() {
   try {
     const { data: products, error } = await supabase
       .from('products')
-      .select('id, updated_at, listing_type')
-      .eq('status', 'aprovado')
+      .select('id, updated_at')
       .order('updated_at', { ascending: false });
 
     if (error) {

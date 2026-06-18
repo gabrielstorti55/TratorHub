@@ -1,0 +1,101 @@
+diff --git a/package.json b/package.json
+index 0e1a038..a1d9bd6 100644
+--- a/package.json
++++ b/package.json
+@@ -5,9 +5,10 @@
+   "type": "module",
+   "scripts": {
+     "dev": "vite",
+-    "build": "vite build",
++    "build": "node scripts/generate-sitemap.js && vite build",
+     "lint": "eslint .",
+     "preview": "vite preview",
++    "sitemap": "node scripts/generate-sitemap.js",
+     "optimize-images": "node scripts/optimize-images.js"
+   },
+   "dependencies": {
+diff --git a/scripts/generate-sitemap.js b/scripts/generate-sitemap.js
+index bc02d73..06a251e 100644
+--- a/scripts/generate-sitemap.js
++++ b/scripts/generate-sitemap.js
+@@ -15,8 +15,13 @@ const __filename = fileURLToPath(import.meta.url);
+ const __dirname = dirname(__filename);
+ 
+ // Configuração do Supabase
+-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://gxfhiqhpwjknwqlefhzz.supabase.co';
+-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4ZmhpcWhwd2prbndxbGVmaHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY5ODI0NjQsImV4cCI6MjA1MjU1ODQ2NH0.xJvPVFyAVGNbYfDCcI0X2_1FgzRiAj2PY9hAXg9kP0Q';
++const supabaseUrl = process.env.VITE_SUPABASE_URL;
++const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
++
++if (!supabaseUrl || !supabaseKey) {
++  console.error('❌ Defina VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no ambiente (.env) antes de rodar este script.');
++  process.exit(1);
++}
+ 
+ const supabase = createClient(supabaseUrl, supabaseKey);
+ 
+@@ -46,8 +51,7 @@ async function fetchProducts() {
+   try {
+     const { data: products, error } = await supabase
+       .from('products')
+-      .select('id, updated_at, listing_type')
+-      .eq('status', 'aprovado')
++      .select('id, updated_at')
+       .order('updated_at', { ascending: false });
+ 
+     if (error) {
+diff --git a/src/pages/ProductDetails.tsx b/src/pages/ProductDetails.tsx
+index 82d271e..c9f0006 100644
+--- a/src/pages/ProductDetails.tsx
++++ b/src/pages/ProductDetails.tsx
+@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase';
+ import { useCompare } from '../contexts/CompareContext';
+ import type { Product } from '../hooks/useProducts';
+ import type { Database } from '../lib/database.types';
++import SEO from '../components/SEO';
++import StructuredData, { createProductSchema, createBreadcrumbSchema } from '../components/StructuredData';
+ 
+ type Profile = Database['public']['Tables']['profiles']['Row'];
+ 
+@@ -167,8 +169,41 @@ export default function ProductDetails() {
+     );
+   }
+ 
++  const pageTitle = `${product.brand} ${product.model} ${product.year}`.trim();
++  const pageDescription = `${product.title} em ${product.location}. ${product.type === 'Venda' ? 'À venda' : 'Para alugar'} por R$ ${product.price?.toLocaleString('pt-BR')}${product.type === 'Aluguel' && product.period ? ` (${product.period.toLowerCase()})` : ''}. ${product.description?.slice(0, 100) || ''}`.trim();
++  const pageUrl = `https://www.tratorhub.com.br/produto/${product.id}`;
++  const mainImage = productImages[0]?.image_url || product.image_url;
++
+   return (
+     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
++      <SEO
++        title={pageTitle}
++        description={pageDescription}
++        keywords={`${product.brand}, ${product.model}, ${product.category}, ${product.type === 'Venda' ? 'comprar' : 'alugar'} ${product.category.toLowerCase()}, máquinas agrícolas ${product.location}`}
++        canonical={pageUrl}
++        ogImage={mainImage}
++        ogType="product"
++      />
++      <StructuredData
++        type="Product"
++        data={createProductSchema({
++          name: pageTitle,
++          image: mainImage,
++          description: product.description || pageDescription,
++          brand: product.brand,
++          price: product.price,
++          availability: product.type === 'Venda' ? 'https://schema.org/InStock' : 'https://schema.org/InStock',
++          condition: 'https://schema.org/UsedCondition',
++        })}
++      />
++      <StructuredData
++        type="BreadcrumbList"
++        data={createBreadcrumbSchema([
++          { name: 'Início', url: 'https://www.tratorhub.com.br' },
++          { name: product.type === 'Venda' ? 'Comprar' : 'Alugar', url: `https://www.tratorhub.com.br/${product.type === 'Venda' ? 'comprar' : 'alugar'}` },
++          { name: pageTitle, url: pageUrl },
++        ])}
++      />
+       {/* Breadcrumb Navigation */}
+       <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-10">
+         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">

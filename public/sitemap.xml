@@ -3,66 +3,182 @@
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  
-  <!-- Página Principal -->
+
+  <!-- Páginas Estáticas -->
   <url>
     <loc>https://www.tratorhub.com.br/</loc>
-    <lastmod>2025-11-04</lastmod>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Páginas de Compra e Aluguel (Alta Prioridade) -->
+
   <url>
     <loc>https://www.tratorhub.com.br/comprar</loc>
-    <lastmod>2025-11-04</lastmod>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-  
+
   <url>
     <loc>https://www.tratorhub.com.br/alugar</loc>
-    <lastmod>2025-11-04</lastmod>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Página de Venda -->
+
   <url>
     <loc>https://www.tratorhub.com.br/vender</loc>
-    <lastmod>2025-11-04</lastmod>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Páginas Informativas -->
+
   <url>
     <loc>https://www.tratorhub.com.br/como-funciona</loc>
-    <lastmod>2025-11-04</lastmod>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
+
   <url>
     <loc>https://www.tratorhub.com.br/sobre</loc>
-    <lastmod>2025-11-04</lastmod>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
   <url>
     <loc>https://www.tratorhub.com.br/contato</loc>
-    <lastmod>2025-11-04</lastmod>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Página de Comparação -->
+
   <url>
     <loc>https://www.tratorhub.com.br/comparar</loc>
-    <lastmod>2025-11-04</lastmod>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
+  <!-- Produtos Dinâmicos -->
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/9207afe8-324c-4276-91f0-772afdf8428d</loc>
+    <lastmod>2026-03-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/5f4fe12a-c773-4112-a42f-7633ca4dbe62</loc>
+    <lastmod>2026-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/f0ce4e07-8e49-4dc2-9926-99823402508a</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/ea7e06f9-122c-403c-a551-fb6b2cce9e77</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/e83f1c59-8af7-4ea1-bff1-576a2acd4cdc</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/c7b5015e-cfe3-446e-ad53-1c507c60b3bc</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/ae27b181-d32b-4761-bd8e-d4a702641f0d</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/a1cc807a-b782-4ec6-b0d3-c999d3c78f3a</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/93805c57-c9bb-4491-8732-7a7cc71b2b48</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/8bfb2640-a629-4113-8230-1dada7b67432</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/8bde28e9-ec2a-433b-8a67-31127cf45a5f</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/861bb424-b3fd-491b-88f0-d06177d94835</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/73340bb3-c09f-456b-85e3-ea1b08b03b9a</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/64c463aa-adb9-4737-b5cb-f68db4874cb2</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/53d3309f-6006-47c1-9cca-3f476a91d182</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/3170c643-fc78-48d8-8eab-78a81f1d9db0</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.tratorhub.com.br/produto/093d2c8e-6f4a-42fa-a291-76a2fd13e7e4</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
