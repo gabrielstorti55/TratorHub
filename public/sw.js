@@ -1,12 +1,11 @@
 // Service Worker para cache offline e melhor performance
-const CACHE_NAME = 'agromachine-v2';
-const RUNTIME_CACHE = 'agromachine-runtime-v2';
+const CACHE_NAME = 'tratorhub-v2';
+const RUNTIME_CACHE = 'tratorhub-runtime-v2';
 
 // Recursos para cache inicial
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/manifest.json',
 ];
 
 // Instalação - fazer cache dos recursos iniciais
