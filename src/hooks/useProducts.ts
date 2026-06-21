@@ -23,6 +23,9 @@ export interface Product {
   part_type?: string | null;
   part_condition?: 'Nova' | 'Usada' | 'Recondicionada' | null;
   part_number?: string | null;
+  contact_name?: string | null;
+  contact_phone?: string | null;
+  contact_company?: string | null;
 }
 
 interface UseProductsOptions {

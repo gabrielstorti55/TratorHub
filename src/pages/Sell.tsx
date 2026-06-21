@@ -44,6 +44,9 @@ interface FormData {
   partType?: string;
   partCondition?: string;
   partNumber?: string;
+  contactName?: string;
+  contactPhone?: string;
+  contactCompany?: string;
 }
 
 interface ImageFile {
@@ -73,6 +76,7 @@ export default function Sell() {
   const yearInputRef = useRef<HTMLInputElement>(null);
   const [compressing, setCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -104,7 +108,7 @@ export default function Sell() {
       // Verificar se o usuário tem cidade e estado cadastrados
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('city, state')
+        .select('city, state, is_admin')
         // @ts-expect-error - Supabase type issue
         .eq('user_id', session.user.id)
         .single();
@@ -113,6 +117,8 @@ export default function Sell() {
         setShowProfileIncompleteModal(true);
         return;
       }
+
+      setIsAdmin(Boolean((profile as any).is_admin));
 
       // Salvar localização do perfil
       const locationFormatted = `${(profile as any).city} - ${(profile as any).state}`;
@@ -525,7 +531,10 @@ export default function Sell() {
           work_width: formData.workWidth ? parseFloat(formData.workWidth) : null,
           part_type: formData.partType || null,
           part_condition: (formData.partCondition as 'Nova' | 'Usada' | 'Recondicionada') || null,
-          part_number: formData.partNumber || null
+          part_number: formData.partNumber || null,
+          contact_name: isAdmin ? (formData.contactName?.trim() || null) : null,
+          contact_phone: isAdmin ? (formData.contactPhone?.trim() || null) : null,
+          contact_company: isAdmin ? (formData.contactCompany?.trim() || null) : null
         })
         .select()
         .single();
@@ -1272,6 +1281,65 @@ export default function Sell() {
                 </div>
               </div>
             </div>
+
+            {isAdmin && (
+              <div className="bg-white rounded-lg shadow-md overflow-hidden border-2 border-amber-300">
+                <div className="p-6 border-b border-gray-100 bg-amber-50">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    🛠️ Anúncio em nome de terceiro (admin)
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Preencha apenas se este anúncio pertence a uma loja, concessionária ou
+                    pessoa diferente de você. O comprador verá estes dados em vez dos seus.
+                    Deixe em branco para usar seus próprios dados normalmente.
+                  </p>
+                </div>
+
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nome do anunciante
+                    </label>
+                    <input
+                      type="text"
+                      name="contactName"
+                      value={formData.contactName || ''}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                      placeholder="Ex: João Silva"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      WhatsApp do anunciante
+                    </label>
+                    <input
+                      type="text"
+                      name="contactPhone"
+                      value={formData.contactPhone || ''}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                      placeholder="Ex: 16999998888"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nome da loja/empresa (opcional)
+                    </label>
+                    <input
+                      type="text"
+                      name="contactCompany"
+                      value={formData.contactCompany || ''}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                      placeholder="Ex: Concessionária Boa Terra"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-end">
               <button

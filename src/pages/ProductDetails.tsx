@@ -96,7 +96,17 @@ export default function ProductDetails() {
             console.error('Erro ao carregar perfil do vendedor:', profileError);
             setSellerNotFound(true);
           } else if (profileData) {
-            setSellerInfo(profileData as any);
+            // Se o anúncio tem contato customizado (ex: cadastrado por admin em nome
+            // de uma loja/pessoa parceira), sobrescreve os dados do perfil técnico
+            // pelos dados reais do anunciante.
+            const contactOverride = productData as any;
+            const mergedSellerInfo = {
+              ...(profileData as any),
+              ...(contactOverride.contact_name ? { full_name: contactOverride.contact_name } : {}),
+              ...(contactOverride.contact_phone ? { phone: contactOverride.contact_phone } : {}),
+              ...(contactOverride.contact_company ? { company_name: contactOverride.contact_company } : {}),
+            };
+            setSellerInfo(mergedSellerInfo);
           } else {
             setSellerNotFound(true);
           }
